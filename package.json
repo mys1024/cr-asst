@@ -1,15 +1,15 @@
 {
-  "name": "starter-node",
+  "name": "cr-asst",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "packageManager": "pnpm@10.4.1",
   "description": "A Node.js package starter template.",
   "author": "mys1024",
   "license": "MIT",
-  "homepage": "https://github.com/mys1024/starter-node#readme",
+  "homepage": "https://github.com/mys1024/cr-asst#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mys1024/starter-node.git"
+    "url": "https://github.com/mys1024/cr-asst.git"
   },
   "keywords": [
     "template"
@@ -17,19 +17,22 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     }
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
+  "bin": {
+    "cr-asst": "./dist/cli.js"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsup src/index.ts --clean --dts --format cjs,esm",
+    "cli": "tsx src/cli.ts",
+    "cli:watch": "tsx watch src/cli.ts",
+    "build": "tsup --format esm --dts --clean src/index.ts src/cli.ts && cp -r src/prompts dist/prompts",
     "test": "vitest",
     "test:cover": "vitest --coverage",
     "check": "run-p check:*",
@@ -38,11 +41,18 @@
     "taze": "taze -I",
     "bump": "bumpp"
   },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "execa": "^9.5.2",
+    "openai": "^4.85.4"
+  },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/node": "^22.13.5",
     "@vitest/coverage-v8": "^3.0.6",
     "bump": "^0.2.5",
+    "bumpp": "^10.0.3",
     "eslint": "^9.21.0",
     "npm-run-all2": "^7.0.2",
     "prettier": "^3.5.2",

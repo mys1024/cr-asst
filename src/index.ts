@@ -1,5 +1,1 @@
-export function foo() {
-  return 'bar';
-}
-
-console.log(foo());
+export { codeReview } from './code_review';
