@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.9.3",
   "packageManager": "pnpm@10.5.2",
-  "description": "A Node.js package starter template.",
+  "description": "Review your code changes with AI assistant.",
   "author": "mys1024",
   "license": "MIT",
   "homepage": "https://github.com/mys1024/cr-asst#readme",
@@ -12,7 +12,11 @@
     "url": "https://github.com/mys1024/cr-asst.git"
   },
   "keywords": [
-    "template"
+    "AI",
+    "assistant",
+    "code review",
+    "LLM",
+    "CI/CD"
   ],
   "exports": {
     ".": {
@@ -21,6 +25,7 @@
     }
   },
   "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
     "cr-asst": "./dist/cli.cjs"
