@@ -15,7 +15,7 @@ export async function codeReview(options: CodeReviewOptions) {
     excludePaths = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
     promptFile = 'en',
     show = true,
-    showReasoning = true,
+    showReasoning,
     showDebug,
     inputFee = 0,
     outputFee = 0,
@@ -125,5 +125,6 @@ export async function codeReview(options: CodeReviewOptions) {
   return {
     reasoningContent,
     content,
+    usage,
   };
 }
