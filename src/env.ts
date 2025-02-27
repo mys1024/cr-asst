@@ -20,14 +20,14 @@ export const envOptions: PartialCodeReviewOptions = {
       : process.env.CR_SHOW_DEBUG === 'false'
         ? false
         : undefined,
-  inputFee: !process.env.CR_INPUT_FEE
+  inputPrice: !process.env.CR_INPUT_PRICE
     ? undefined
-    : isNaN(parseFloat(process.env.CR_INPUT_FEE))
+    : isNaN(parseFloat(process.env.CR_INPUT_PRICE))
       ? undefined
-      : parseFloat(process.env.CR_INPUT_FEE),
-  outputFee: !process.env.CR_OUTPUT_FEE
+      : parseFloat(process.env.CR_INPUT_PRICE),
+  outputPrice: !process.env.CR_OUTPUT_PRICE
     ? undefined
-    : isNaN(parseFloat(process.env.CR_OUTPUT_FEE))
+    : isNaN(parseFloat(process.env.CR_OUTPUT_PRICE))
       ? undefined
-      : parseFloat(process.env.CR_OUTPUT_FEE),
+      : parseFloat(process.env.CR_OUTPUT_PRICE),
 };

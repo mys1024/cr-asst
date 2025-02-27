@@ -19,8 +19,16 @@ const cliOptions = program
   .option('-s, --show [bool]', 'Show on stdout.', (v) => v === 'true')
   .option('--show-reasoning [bool]', 'Show reasoning.', (v) => v === 'true')
   .option('--show-debug [bool]', 'Show debug info.', (v) => v === 'true')
-  .option('--input-fee <fee>', 'Fee per million input tokens. For debugging.', parseFloat)
-  .option('--output-fee <fee>', 'Fee per million output tokens. For debugging.', parseFloat)
+  .option(
+    '--input-price <price>',
+    'Price per million input tokens. For computing usage.',
+    parseFloat,
+  )
+  .option(
+    '--output-price <price>',
+    'Price per million output tokens. For computing usage.',
+    parseFloat,
+  )
   .parse(process.argv)
   .opts<PartialCodeReviewOptions>();
 

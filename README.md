@@ -26,7 +26,7 @@ codeReview({
 });
 ```
 
-## Environment Variables
+## Environment Variables (Only for CLI)
 
 | Environment Variable | Required/Optional | Default                                      | Description                                            |
 | -------------------- | ----------------- | -------------------------------------------- | ------------------------------------------------------ |
@@ -39,8 +39,8 @@ codeReview({
 | `CR_SHOW`            | Optional          | `true`                                       | Show on stdout.                                        |
 | `CR_SHOW_REASONING`  | Optional          | `false`                                      | Show reasoning.                                        |
 | `CR_SHOW_DEBUG`      | Optional          | `false`                                      | Show debug info.                                       |
-| `CR_INPUT_FEE`       | Optional          | `0`                                          | Fee per million input tokens. For debugging.           |
-| `CR_OUTPUT_FEE`      | Optional          | `0`                                          | Fee per million output tokens. For debugging.          |
+| `CR_INPUT_PRICE`     | Optional          | `0`                                          | Price per million input tokens. For computing usage.   |
+| `CR_OUTPUT_PRICE`    | Optional          | `0`                                          | Price per million output tokens. For computing usage.  |
 
 ## License
 

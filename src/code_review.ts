@@ -17,8 +17,8 @@ export async function codeReview(options: CodeReviewOptions) {
     show = true,
     showReasoning,
     showDebug,
-    inputFee = 0,
-    outputFee = 0,
+    inputPrice = 0,
+    outputPrice = 0,
   } = options;
 
   // client
@@ -55,9 +55,9 @@ export async function codeReview(options: CodeReviewOptions) {
     inputTokens: 0,
     outputTokens: 0,
     totalTokens: 0,
-    inputFee: 0,
-    outputFee: 0,
-    totalFee: 0,
+    inputCost: 0,
+    outputCost: 0,
+    totalCost: 0,
   };
   for await (const chunk of stream) {
     // reasoning content
@@ -99,10 +99,11 @@ export async function codeReview(options: CodeReviewOptions) {
         inputTokens: chunk.usage.prompt_tokens,
         outputTokens: chunk.usage.completion_tokens,
         totalTokens: chunk.usage.total_tokens,
-        inputFee: (inputFee * usage.inputTokens) / 1_000_000,
-        outputFee: (outputFee * usage.outputTokens) / 1_000_000,
-        totalFee:
-          (inputFee * usage.inputTokens) / 1_000_000 + (outputFee * usage.outputTokens) / 1_000_000,
+        inputCost: (inputPrice * usage.inputTokens) / 1_000_000,
+        outputCost: (outputPrice * usage.outputTokens) / 1_000_000,
+        totalCost:
+          (inputPrice * usage.inputTokens) / 1_000_000 +
+          (outputPrice * usage.outputTokens) / 1_000_000,
       };
     }
   }

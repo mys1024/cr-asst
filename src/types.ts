@@ -8,8 +8,8 @@ export type CodeReviewOptions = {
   show?: boolean;
   showReasoning?: boolean;
   showDebug?: boolean;
-  inputFee?: number;
-  outputFee?: number;
+  inputPrice?: number;
+  outputPrice?: number;
 };
 
 export type PartialCodeReviewOptions = Partial<CodeReviewOptions>;
