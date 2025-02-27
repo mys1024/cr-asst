@@ -119,6 +119,8 @@ export async function codeReview(options: CodeReviewOptions) {
   // print debug info
   if (showDebug) {
     console.log();
+    console.log('DEBUG INFO:');
+    console.log();
     console.log('usage:', usage);
   }
 
