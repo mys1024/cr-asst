@@ -1,8 +1,7 @@
 # cr-asst
 
-[![npm-version](https://img.shields.io/npm/v/cr-asst?style=flat-square&color=%23cb3837)](https://www.npmjs.com/package/cr-asst)
-[![npm-minzip](https://img.shields.io/bundlephobia/minzip/cr-asst?style=flat-square&label=minzip)](https://bundlephobia.com/package/cr-asst)
 [![license](https://img.shields.io/github/license/mys1024/cr-asst?&style=flat-square)](./LICENSE)
+[![npm-version](https://img.shields.io/npm/v/cr-asst?style=flat-square&color=%23cb3837)](https://www.npmjs.com/package/cr-asst)
 [![workflow-ci](https://img.shields.io/github/actions/workflow/status/mys1024/cr-asst/ci.yml?label=ci&style=flat-square)](https://github.com/mys1024/cr-asst/actions/workflows/ci.yml)
 [![workflow-release](https://img.shields.io/github/actions/workflow/status/mys1024/cr-asst/release.yml?label=release&style=flat-square)](https://github.com/mys1024/cr-asst/actions/workflows/release.yml)
 
@@ -10,8 +9,21 @@ Review your code changes with AI assistant.
 
 ## Usage
 
+### CLI
+
 ```sh
 npx cr-asst -h
+```
+
+### API
+
+```javascript
+import { codeReview } from 'cr-asst';
+
+codeReview({
+  model: 'model-xxx',
+  apiKey: 'sk-xxx',
+});
 ```
 
 ## Environment Variables
