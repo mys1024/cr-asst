@@ -1,11 +1,15 @@
+.cache
 .DS_Store
+.idea
 *.local
-dist
-node_modules
-.idea/
 *.log
-.env
+*.tgz
 coverage
-__snapshots__
+dist
+lib-cov
+logs
+node_modules
+temp
 
+.env
 cr-asst.output.md
