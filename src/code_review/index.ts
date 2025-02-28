@@ -129,9 +129,12 @@ export async function codeReview(options: CodeReviewOptions) {
   // print debug info
   if (printDebug) {
     console.log();
-    console.log('DEBUG INFO:');
-    console.log();
-    console.log('usage:', usage);
+    console.log(
+      '[USAGE]',
+      Object.entries(usage)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', '),
+    );
   }
 
   // return
