@@ -37,8 +37,8 @@
     "cli": "tsx src/cli.ts",
     "cli:watch": "tsx watch src/cli.ts",
     "build": "unbuild",
-    "test": "vitest",
-    "test:cover": "vitest --coverage",
+    "test": "vitest run",
+    "test:cover": "vitest run --coverage",
     "check": "run-p check:*",
     "check:type": "tsc --noEmit",
     "check:lint": "eslint .",
@@ -78,7 +78,7 @@
     ]
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm check:type && pnpm lint-staged"
+    "pre-commit": "pnpm test && pnpm check:type && pnpm lint-staged"
   },
   "lint-staged": {
     "*": [
