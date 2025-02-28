@@ -11,8 +11,16 @@ Review your code changes with AI assistant.
 
 ### CLI
 
+Help:
+
 ```sh
-npx cr-asst --model xxx --apiKey xxx
+npx cr-asst -h
+```
+
+Code review:
+
+```sh
+npx cr-asst --diff-src master --model xxx --api-key xxx
 ```
 
 ### API
@@ -21,15 +29,14 @@ npx cr-asst --model xxx --apiKey xxx
 import { codeReview } from 'cr-asst';
 
 codeReview({
+  diffSrc: 'master',
   model: 'xxx',
   apiKey: 'xxx',
   // other options...
 });
 ```
 
-## API Options
-
-See [`CodeReviewOptions`](./src/types.ts).
+See [`CodeReviewOptions`](./src/types.ts) for more options.
 
 ## Environment Variables (Only for CLI)
 
