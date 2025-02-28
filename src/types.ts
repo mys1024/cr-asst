@@ -15,6 +15,11 @@ export type CodeReviewOptions = {
   baseUrl?: string;
 
   /**
+   * Diffs to review. If not provided, will use diffsCmd to get diffs.
+   */
+  diffs?: string;
+
+  /**
    * Command to get diffs for review.
    * @default 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock'
    */

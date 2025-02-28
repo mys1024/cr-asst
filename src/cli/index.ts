@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { exit, argv } from 'node:process';
+import { exit, stdin, argv } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { program } from 'commander';
@@ -10,6 +10,16 @@ import { envOptions } from './env';
 import type { CodeReviewOptions } from '../types';
 
 export async function cli() {
+  // read diffs from stdin
+  const diffs = await (async () => {
+    let data = '';
+    for await (const chunk of stdin) {
+      data += chunk;
+    }
+    return data;
+  })();
+
+  // cli options
   const options = program
     .version(version, '-v, --version', 'Show version.')
     .helpOption('-h, --help', 'Show help.')
@@ -64,6 +74,7 @@ export async function cli() {
     .parse(argv)
     .opts<CodeReviewOptions>();
 
+  // ensure apiKey is provided
   if (!options.apiKey) {
     if (envOptions.apiKey) {
       options.apiKey = envOptions.apiKey;
@@ -73,9 +84,14 @@ export async function cli() {
     }
   }
 
-  codeReview(options);
+  // run code review
+  codeReview({
+    diffs,
+    ...options,
+  });
 }
 
+// run cli if this file is the entrypoint
 if (fileURLToPath(import.meta.url) === resolve(argv[1])) {
   cli();
 }

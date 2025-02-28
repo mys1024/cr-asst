@@ -13,6 +13,7 @@ export async function codeReview(options: CodeReviewOptions) {
     model,
     apiKey,
     baseUrl,
+    diffs,
     diffsCmd = 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
     outputFile,
     promptFile = 'en',
@@ -29,13 +30,15 @@ export async function codeReview(options: CodeReviewOptions) {
     apiKey,
   });
 
-  // get diffs
-  const cmdArr = diffsCmd.split(' ').filter((v) => !!v);
-  const { stdout: diffs } = await execa(cmdArr[0], cmdArr.slice(1));
-
   // get prompt
   const prompt = await getPrompt(promptFile, {
-    $DIFFS: diffs,
+    $DIFFS: diffs
+      ? diffs
+      : await (async () => {
+          const cmdArr = diffsCmd.split(' ').filter((v) => !!v);
+          const { stdout } = await execa(cmdArr[0], cmdArr.slice(1));
+          return stdout;
+        })(),
   });
 
   // clear the output file

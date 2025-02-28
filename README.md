@@ -21,6 +21,8 @@ Code review:
 
 ```sh
 npx cr-asst --diffs-cmd "git log -p master.." --model xxx --api-key xxx
+# or
+git log -p master.. | npx cr-asst --model xxx --api-key xxx
 ```
 
 Note: `--diffs-cmd` defaults to `git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock`, which means to get the diffs of the last commit, excluding `package-lock.json`, `pnpm-lock.yaml`, and `yarn.lock`.
@@ -31,7 +33,7 @@ Note: `--diffs-cmd` defaults to `git log --no-prefix -p -n 1 -- . :!package-lock
 import { codeReview } from 'cr-asst';
 
 codeReview({
-  diffsCmd: 'git log -p master..',
+  diffs: 'DIFFS_TO_REVIEW', // or `diffsCmd: 'COMMAND_TO_GET_DIFFS'`
   model: 'xxx',
   apiKey: 'xxx',
   // other options...
@@ -55,6 +57,8 @@ See [`CodeReviewOptions`](./src/types.ts) for more options.
 | `CR_SHOW_DEBUG`      | Show debug info.                                                              |
 | `CR_INPUT_PRICE`     | Price per million input tokens. For computing cost in debug mode.             |
 | `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing cost in debug mode.            |
+
+Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file.
 
 ## License
 
