@@ -12,6 +12,9 @@ import type { CodeReviewOptions } from '../types';
 export async function cli() {
   // read diffs from stdin
   const diffs = await (async () => {
+    if (stdin.isTTY) {
+      return;
+    }
     let data = '';
     for await (const chunk of stdin) {
       data += chunk;
