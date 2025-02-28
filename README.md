@@ -11,7 +11,7 @@ Review your code changes with AI assistant.
 
 ### CLI
 
-Help:
+Show help:
 
 ```sh
 npx cr-asst -h
@@ -25,7 +25,7 @@ npx cr-asst --diffs-cmd "git log -p master.." --model xxx --api-key xxx
 git log -p master.. | npx cr-asst --model xxx --api-key xxx
 ```
 
-Note: `--diffs-cmd` defaults to `git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock`, which means to get the diffs of the last commit, excluding `package-lock.json`, `pnpm-lock.yaml`, and `yarn.lock`.
+The option `--diffs-cmd` defaults to `git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock`, which means to get the diffs of the last commit, excluding `package-lock.json`, `pnpm-lock.yaml`, and `yarn.lock`.
 
 ### API
 
@@ -58,7 +58,7 @@ See [`CodeReviewOptions`](./src/types.ts) for more options.
 | `CR_INPUT_PRICE`     | Price per million input tokens. For computing cost.                           |
 | `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing cost.                          |
 
-Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file.
+Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file in the current working directory.
 
 ## License
 
