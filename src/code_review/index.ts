@@ -24,7 +24,7 @@ export async function codeReview(options: CodeReviewOptions) {
     outputPrice = 0,
   } = options;
 
-  // openai client
+  // create openai client
   const client = new OpenAI({
     baseURL: baseUrl,
     apiKey,
@@ -46,14 +46,14 @@ export async function codeReview(options: CodeReviewOptions) {
     await writeFile(outputFile, '');
   }
 
-  // call completions api
+  // create completion stream
   const stream = await client.chat.completions.create({
     stream: true,
     model,
     messages: [{ role: 'user', content: prompt }],
   });
 
-  // read completions api response stream
+  // init variables
   let content = '';
   let reasoningContent = '';
   let hasReasoning = false;
@@ -65,8 +65,10 @@ export async function codeReview(options: CodeReviewOptions) {
     outputCost: 0,
     totalCost: 0,
   };
+
+  // read completion stream
   for await (const chunk of stream) {
-    // reasoning content
+    // read reasoning content
     let reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
       ?.reasoning_content;
     if (showReasoning && reasoningContentChunk) {
@@ -88,7 +90,8 @@ export async function codeReview(options: CodeReviewOptions) {
         await appendFile(outputFile, reasoningContentChunk);
       }
     }
-    // content
+
+    // read content
     const contentChunk = chunk.choices[0]?.delta?.content;
     if (contentChunk) {
       content += contentChunk;
@@ -99,7 +102,8 @@ export async function codeReview(options: CodeReviewOptions) {
         await appendFile(outputFile, contentChunk);
       }
     }
-    // usage
+
+    // update usage
     if (chunk.usage) {
       usage = {
         inputTokens: chunk.usage.prompt_tokens,
