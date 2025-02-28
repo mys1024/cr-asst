@@ -5,8 +5,6 @@ import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
 import type { CodeReviewOptions } from '../types';
 
-/* ------------------------------------------------ code review ------------------------------------------------ */
-
 export async function codeReview(options: CodeReviewOptions) {
   // options
   const {
