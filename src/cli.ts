@@ -1,5 +1,6 @@
 import { exit } from 'node:process';
 import { program } from 'commander';
+import { version } from '../package.json';
 import { codeReview } from './code_review';
 import { envOptions } from './env';
 import type { PartialCodeReviewOptions, CodeReviewOptions } from './types';
@@ -7,7 +8,7 @@ import type { PartialCodeReviewOptions, CodeReviewOptions } from './types';
 /* ------------------------------------------------ cil ------------------------------------------------ */
 
 const options = program
-  .version('0.9.0', '-v, --version', 'Show version.')
+  .version(version, '-v, --version', 'Show version.')
   .helpOption('-h, --help', 'Show help.')
   .requiredOption('-m, --model <model>', 'Model to use.', envOptions.model)
   .option(
