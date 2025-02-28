@@ -1,15 +1,13 @@
 #!/usr/bin/env node
 
 import { exit, stdin, argv } from 'node:process';
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
 import { program } from 'commander';
 import { version } from '../../package.json';
 import { codeReview } from '../code_review';
 import { envOptions } from './env';
 import type { CodeReviewOptions } from '../types';
 
-export async function cli() {
+async function cli() {
   // read diffs from stdin
   const diffs = await (async () => {
     if (stdin.isTTY) {
@@ -94,7 +92,4 @@ export async function cli() {
   });
 }
 
-// run cli if this file is the entrypoint
-if (fileURLToPath(import.meta.url) === resolve(argv[1])) {
-  cli();
-}
+cli();
