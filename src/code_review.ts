@@ -1,6 +1,7 @@
 import { writeFile, appendFile } from 'node:fs/promises';
 import OpenAI from 'openai';
-import { gitShow, readPromptFile } from './utils';
+import { getPrompt } from './prompts/index';
+import { gitShow } from './utils';
 import type { CodeReviewOptions } from './types';
 
 /* ------------------------------------------------ code review ------------------------------------------------ */
@@ -31,8 +32,8 @@ export async function codeReview(options: CodeReviewOptions) {
   const gitShowOutput = await gitShow(excludePaths);
 
   // generate prompt
-  const prompt = await readPromptFile(promptFile, {
-    $GIT_SHOW: gitShowOutput,
+  const prompt = await getPrompt(promptFile, {
+    $DIFF: gitShowOutput,
   });
 
   // clear the output file
