@@ -16,7 +16,7 @@ export type CodeReviewOptions = {
 
   /**
    * Command to get diffs for review.
-   * @default 'git log --no-prefix -p -n 1'
+   * @default 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock'
    */
   diffsCmd?: string;
 

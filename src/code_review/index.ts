@@ -1,8 +1,9 @@
+import { stdout } from 'node:process';
 import { writeFile, appendFile } from 'node:fs/promises';
 import OpenAI from 'openai';
 import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
-import type { CodeReviewOptions } from './types';
+import type { CodeReviewOptions } from '../types';
 
 /* ------------------------------------------------ code review ------------------------------------------------ */
 
@@ -69,7 +70,7 @@ export async function codeReview(options: CodeReviewOptions) {
       if (!hasReasoning) {
         hasReasoning = true;
         if (show) {
-          process.stdout.write('> (Reasoning)\n> \n> ');
+          stdout.write('> (Reasoning)\n> \n> ');
         }
         if (outputFile) {
           await appendFile(outputFile, '> (Reasoning)\n> \n> ');
@@ -78,7 +79,7 @@ export async function codeReview(options: CodeReviewOptions) {
       reasoningContentChunk = reasoningContentChunk.replaceAll('\n', '\n> ');
       reasoningContent += reasoningContentChunk;
       if (show) {
-        process.stdout.write(reasoningContentChunk);
+        stdout.write(reasoningContentChunk);
       }
       if (outputFile) {
         await appendFile(outputFile, reasoningContentChunk);
@@ -89,7 +90,7 @@ export async function codeReview(options: CodeReviewOptions) {
     if (contentChunk) {
       content += contentChunk;
       if (show) {
-        process.stdout.write(contentChunk);
+        stdout.write(contentChunk);
       }
       if (outputFile) {
         await appendFile(outputFile, contentChunk);
@@ -112,7 +113,7 @@ export async function codeReview(options: CodeReviewOptions) {
 
   // print the end line
   if (show) {
-    process.stdout.write('\n');
+    stdout.write('\n');
   }
   if (outputFile) {
     await appendFile(outputFile, '\n');

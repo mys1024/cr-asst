@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import type { PromptReplacements } from '../types';
+import type { PromptReplacements } from '../../types';
 import { genEnBuiltinPrompt } from './en';
 import { genZhCnBuiltinPrompt } from './zh-cn';
 

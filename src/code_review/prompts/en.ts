@@ -1,4 +1,4 @@
-import type { PromptReplacements } from '../types';
+import type { PromptReplacements } from '../../types';
 
 export function genEnBuiltinPrompt(replacements: PromptReplacements) {
   const { $DIFFS } = replacements;

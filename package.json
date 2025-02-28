@@ -28,14 +28,14 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
-    "cr-asst": "./dist/cli.cjs"
+    "cr-asst": "./dist/cli/index.cjs"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "cli": "tsx src/cli.ts",
-    "cli:watch": "tsx watch src/cli.ts",
+    "cli": "tsx src/cli/index.ts",
+    "cli:watch": "tsx watch src/cli/index.ts",
     "build": "unbuild",
     "test": "vitest run",
     "test:watch": "vitest watch",
