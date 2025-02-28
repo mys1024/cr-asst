@@ -135,5 +135,6 @@ export async function codeReview(options: CodeReviewOptions) {
     reasoningContent,
     content,
     usage,
+    diffs,
   };
 }
