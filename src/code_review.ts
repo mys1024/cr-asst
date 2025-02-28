@@ -13,11 +13,11 @@ export async function codeReview(options: CodeReviewOptions) {
     apiKey,
     baseUrl,
     outputFile,
-    excludePaths = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
     promptFile = 'en',
-    show = true,
-    showReasoning,
-    showDebug,
+    excludePaths = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
+    show = false,
+    showReasoning = false,
+    showDebug = false,
     inputPrice = 0,
     outputPrice = 0,
   } = options;
@@ -31,7 +31,7 @@ export async function codeReview(options: CodeReviewOptions) {
   // read the latest commit
   const gitShowOutput = await gitShow(excludePaths);
 
-  // generate prompt
+  // get prompt
   const prompt = await getPrompt(promptFile, {
     $DIFF: gitShowOutput,
   });

@@ -3,9 +3,7 @@ import { program } from 'commander';
 import { version } from '../package.json';
 import { codeReview } from './code_review';
 import { envOptions } from './env';
-import type { PartialCodeReviewOptions, CodeReviewOptions } from './types';
-
-/* ------------------------------------------------ cil ------------------------------------------------ */
+import type { CodeReviewOptions } from './types';
 
 const options = program
   .version(version, '-v, --version', 'Show version.')
@@ -18,14 +16,14 @@ const options = program
   .option('-u, --base-url <url>', 'Base URL for the API.', envOptions.baseUrl)
   .option('-o, --output-file <file>', 'Save output to file.', envOptions.outputFile)
   .option(
-    '-e, --exclude-paths <path...>',
-    'Exclude paths.',
-    envOptions.excludePaths || ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
-  )
-  .option(
     '-p, --prompt-file <fileOrBuiltinPrompt>',
     'Custom prompt file or builtin prompts (options: "en", "zh-cn", "zh-cn-nyan").',
     envOptions.promptFile || 'en',
+  )
+  .option(
+    '-e, --exclude-paths <path...>',
+    'Exclude paths.',
+    envOptions.excludePaths || ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
   )
   .option(
     '-s, --show [bool]',
@@ -58,27 +56,15 @@ const options = program
     typeof envOptions.outputPrice === 'number' ? envOptions.outputPrice : 0,
   )
   .parse(process.argv)
-  .opts<PartialCodeReviewOptions>();
+  .opts<CodeReviewOptions>();
 
-if (!options.apiKey && envOptions.apiKey) {
-  options.apiKey = envOptions.apiKey;
-}
-
-assertAsCodeReviewOptions(options);
-
-codeReview(options);
-
-/* ------------------------------------------------ utils ------------------------------------------------ */
-
-export function assertAsCodeReviewOptions(
-  options: PartialCodeReviewOptions,
-): asserts options is CodeReviewOptions {
-  if (!options.model) {
-    console.error("error: required option '-m, --model <model>' not specified");
-    exit(1);
-  }
-  if (!options.apiKey) {
+if (!options.apiKey) {
+  if (envOptions.apiKey) {
+    options.apiKey = envOptions.apiKey;
+  } else {
     console.error("error: required option '-k, --api-key <key>' not specified");
     exit(1);
   }
 }
+
+codeReview(options);

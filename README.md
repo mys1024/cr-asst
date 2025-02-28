@@ -12,7 +12,7 @@ Review your code changes with AI assistant.
 ### CLI
 
 ```sh
-npx cr-asst -h
+npx cr-asst --model xxx --apiKey xxx
 ```
 
 ### API
@@ -21,8 +21,8 @@ npx cr-asst -h
 import { codeReview } from 'cr-asst';
 
 codeReview({
-  model: 'model-xxx',
-  apiKey: 'sk-xxx',
+  model: 'xxx',
+  apiKey: 'xxx',
 });
 ```
 
