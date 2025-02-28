@@ -9,6 +9,7 @@ export async function gitDiff(options: {
 
   const { stdout } = await execa('git', [
     'diff',
+    '--no-prefix',
     src,
     dst,
     '--',

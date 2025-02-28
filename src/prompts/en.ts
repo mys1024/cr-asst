@@ -7,9 +7,8 @@ Your response should adhere to the following rules:
 2. Your complete response **should not** be wrapped in code block delimiters (i.e., "\`\`\`").
 3. In the response template, sections, tables, etc., may only list one or two items as examples, but you should adjust the number of items according to the actual context.
 4. In the "File-wise Review" section, the "(filename)" should not include its path. However, when files with the same name exist, the "(filename)" should include the shortest path necessary to distinguish them.
-5. Code changes are represented in \`diff\` format, where the compared file paths usually start with \`a/\` or \`b/\`. In "File-wise Review" section, the "(full file path)" should not include the leading \`a/\` or \`b/\`.
-6. The review comments should indicate possible problems, shortcomings, and provide repair suggestions.
-7. The review comments should praise good changes.
+5. The review comments should indicate possible problems, shortcomings, and provide repair suggestions.
+6. The review comments should praise good changes.
 
 This is the response template you need to follow:
 
