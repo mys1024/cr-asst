@@ -38,6 +38,8 @@ See [`CodeReviewOptions`](./src/types.ts).
 | `CR_MODEL`           | Model to use.                                                                 |
 | `CR_API_KEY`         | API key for authentication.                                                   |
 | `CR_BASE_URL`        | Base URL for the API.                                                         |
+| `CR_DIFF_SRC`        | Git diff source blob.                                                         |
+| `CR_DIFF_DST`        | Git diff destination blob.                                                    |
 | `CR_PROMPT_FILE`     | Custom prompt file or builtin prompts (options: "en", "zh-cn", "zh-cn-nyan"). |
 | `CR_OUTPUT_FILE`     | Save output to file.                                                          |
 | `CR_EXCLUDE_PATHS`   | Exclude paths (comma-separated).                                              |

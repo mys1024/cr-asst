@@ -19,9 +19,9 @@ describe('getPrompt()', () => {
   });
 
   it('replacements', async () => {
-    expect((await getPrompt('en', {})).includes('$DIFF')).toBe(true);
+    expect((await getPrompt('en', {})).includes('$DIFFS')).toBe(true);
     expect((await getPrompt('en', {})).includes('NEW_TEXT')).toBe(false);
-    expect((await getPrompt('en', { $DIFF: 'NEW_TEXT' })).includes('$DIFF')).toBe(false);
-    expect((await getPrompt('en', { $DIFF: 'NEW_TEXT' })).includes('NEW_TEXT')).toBe(true);
+    expect((await getPrompt('en', { $DIFFS: 'NEW_TEXT' })).includes('$DIFFS')).toBe(false);
+    expect((await getPrompt('en', { $DIFFS: 'NEW_TEXT' })).includes('NEW_TEXT')).toBe(true);
   });
 });

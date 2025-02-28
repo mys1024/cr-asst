@@ -17,6 +17,8 @@ export const envOptions: PartialCodeReviewOptions = {
   model: process.env.CR_MODEL,
   apiKey: process.env.CR_API_KEY,
   baseUrl: process.env.CR_BASE_URL,
+  diffSrc: process.env.CR_DIFF_SRC,
+  diffDst: process.env.CR_DIFF_DST,
   outputFile: process.env.CR_OUTPUT_FILE,
   promptFile: process.env.CR_PROMPT_FILE,
   excludePaths: process.env.CR_EXCLUDE_PATHS?.split(','),

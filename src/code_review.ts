@@ -1,7 +1,7 @@
 import { writeFile, appendFile } from 'node:fs/promises';
 import OpenAI from 'openai';
 import { getPrompt } from './prompts/index';
-import { gitShow } from './utils';
+import { gitDiff } from './utils';
 import type { CodeReviewOptions } from './types';
 
 /* ------------------------------------------------ code review ------------------------------------------------ */
@@ -12,6 +12,8 @@ export async function codeReview(options: CodeReviewOptions) {
     model,
     apiKey,
     baseUrl,
+    diffSrc = 'HEAD^',
+    diffDst = 'HEAD',
     outputFile,
     promptFile = 'en',
     excludePaths = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
@@ -28,12 +30,13 @@ export async function codeReview(options: CodeReviewOptions) {
     apiKey,
   });
 
-  // read the latest commit
-  const gitShowOutput = await gitShow(excludePaths);
-
   // get prompt
   const prompt = await getPrompt(promptFile, {
-    $DIFF: gitShowOutput,
+    $DIFFS: await gitDiff({
+      src: diffSrc,
+      dst: diffDst,
+      excludePaths,
+    }),
   });
 
   // clear the output file

@@ -36,6 +36,6 @@ This is the response template you need to follow:
 This is the code changes you need to review:
 
 \`\`\`diff
-$DIFF
+$DIFFS
 \`\`\``;
 }

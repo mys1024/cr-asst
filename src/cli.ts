@@ -16,6 +16,8 @@ const options = program
     `API key for authentication.${envOptions.apiKey ? ' (default: retrieve from env)' : ''}`,
   )
   .option('-u, --base-url <url>', 'Base URL for the API.', envOptions.baseUrl)
+  .option('-s, --diff-src <blob>', 'Git diff source blob.', envOptions.diffSrc || 'HEAD^')
+  .option('-d, --diff-dst <blob>', 'Git diff destination blob.', envOptions.diffDst || 'HEAD')
   .option('-o, --output-file <file>', 'Save output to file.', envOptions.outputFile)
   .option(
     '-p, --prompt-file <fileOrBuiltinPrompt>',
@@ -28,7 +30,7 @@ const options = program
     envOptions.excludePaths || ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
   )
   .option(
-    '-s, --show [bool]',
+    '--show [bool]',
     'Show on stdout.',
     (val) => val !== 'false',
     typeof envOptions.show === 'boolean' ? envOptions.show : true,

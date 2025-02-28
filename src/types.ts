@@ -15,6 +15,18 @@ export type CodeReviewOptions = {
   baseUrl?: string;
 
   /**
+   * Git diff source blob.
+   * @default 'HEAD^'
+   */
+  diffSrc?: string;
+
+  /**
+   * Git diff destination blob.
+   * @default 'HEAD'
+   */
+  diffDst?: string;
+
+  /**
    * Save output to file.
    */
   outputFile?: string;
