@@ -23,8 +23,13 @@ import { codeReview } from 'cr-asst';
 codeReview({
   model: 'xxx',
   apiKey: 'xxx',
+  // other options...
 });
 ```
+
+## API Options
+
+See [`CodeReviewOptions`](./src/types.ts).
 
 ## Environment Variables (Only for CLI)
 
