@@ -26,39 +26,39 @@ export async function cli() {
   const options = program
     .version(version, '-v, --version', 'Show version.')
     .helpOption('-h, --help', 'Show help.')
-    .requiredOption('-m, --model <model>', 'Model to use.', envOptions.model)
+    .requiredOption('-m, --model <model>', 'AI Model to use for review.', envOptions.model)
     .option(
       '-k, --api-key <key>',
-      `API key for authentication.${envOptions.apiKey ? ' (default: retrieve from env)' : ''}`,
+      `API key for the AI service.${envOptions.apiKey ? ' (default: retrieve from env)' : ''}`,
     )
-    .option('-u, --base-url <url>', 'Base URL for the API.', envOptions.baseUrl)
+    .option('-u, --base-url <url>', 'Base URL for the AI service API.', envOptions.baseUrl)
     .option(
       '-d, --diffs-cmd <cmd>',
-      'Command to get diffs for review.',
+      'Command to get code diffs for review.',
       envOptions.diffsCmd ||
         'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
     )
-    .option('-o, --output-file <file>', 'Save output to file.', envOptions.outputFile)
+    .option('-o, --output-file <file>', 'Save review result to file.', envOptions.outputFile)
     .option(
       '-p, --prompt-file <fileOrBuiltinPrompt>',
-      'Custom prompt file or builtin prompts (options: "en", "zh-cn", "zh-cn-nyan").',
+      'Custom prompt file or builtin prompt (options: "en", "zh-cn", "zh-cn-nyan").',
       envOptions.promptFile || 'en',
     )
     .option(
       '--show [bool]',
-      'Show on stdout.',
+      'Print review result to stdout.',
       (val) => val !== 'false',
       typeof envOptions.show === 'boolean' ? envOptions.show : true,
     )
     .option(
       '--show-reasoning [bool]',
-      'Show reasoning.',
+      'Print reasoning to stdout (only available for models that support reasoning).',
       (val) => val !== 'false',
       typeof envOptions.showReasoning === 'boolean' ? envOptions.showReasoning : false,
     )
     .option(
       '--show-debug [bool]',
-      'Show debug info.',
+      'Print debug information to stdout.',
       (val) => val !== 'false',
       typeof envOptions.showDebug === 'boolean' ? envOptions.showDebug : false,
     )
