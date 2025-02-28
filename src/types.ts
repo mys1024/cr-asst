@@ -1,10 +1,10 @@
 export type CodeReviewOptions = {
   model: string;
-  apiKey?: string;
+  apiKey: string;
   baseUrl?: string;
+  promptFile?: string;
   outputFile?: string;
   excludePaths?: string[];
-  promptFile?: string;
   show?: boolean;
   showReasoning?: boolean;
   showDebug?: boolean;
