@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { exit } from 'node:process';
 import { program } from 'commander';
 import { version } from '../package.json';
