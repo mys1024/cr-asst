@@ -20,8 +20,10 @@ npx cr-asst -h
 Code review:
 
 ```sh
-npx cr-asst --diff-src master --model xxx --api-key xxx
+npx cr-asst --diffs-cmd "git log -p master.." --model xxx --api-key xxx
 ```
+
+Note: `--diffs-cmd` defaults to `git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock`, which means to get the diffs of the last commit, excluding `package-lock.json`, `pnpm-lock.yaml`, and `yarn.lock`.
 
 ### API
 
@@ -29,7 +31,7 @@ npx cr-asst --diff-src master --model xxx --api-key xxx
 import { codeReview } from 'cr-asst';
 
 codeReview({
-  diffSrc: 'master',
+  diffsCmd: 'git log -p master..',
   model: 'xxx',
   apiKey: 'xxx',
   // other options...
@@ -45,11 +47,9 @@ See [`CodeReviewOptions`](./src/types.ts) for more options.
 | `CR_MODEL`           | Model to use.                                                                 |
 | `CR_API_KEY`         | API key for authentication.                                                   |
 | `CR_BASE_URL`        | Base URL for the API.                                                         |
-| `CR_DIFF_SRC`        | Git diff source blob.                                                         |
-| `CR_DIFF_DST`        | Git diff destination blob.                                                    |
+| `CR_DIFFS_CMD`       | Command to get diffs for review.                                              |
 | `CR_PROMPT_FILE`     | Custom prompt file or builtin prompts (options: "en", "zh-cn", "zh-cn-nyan"). |
 | `CR_OUTPUT_FILE`     | Save output to file.                                                          |
-| `CR_EXCLUDE_PATHS`   | Exclude paths (comma-separated).                                              |
 | `CR_SHOW`            | Show on stdout.                                                               |
 | `CR_SHOW_REASONING`  | Show reasoning.                                                               |
 | `CR_SHOW_DEBUG`      | Show debug info.                                                              |

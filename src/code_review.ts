@@ -1,7 +1,7 @@
 import { writeFile, appendFile } from 'node:fs/promises';
 import OpenAI from 'openai';
+import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
-import { gitDiff } from './utils';
 import type { CodeReviewOptions } from './types';
 
 /* ------------------------------------------------ code review ------------------------------------------------ */
@@ -12,11 +12,9 @@ export async function codeReview(options: CodeReviewOptions) {
     model,
     apiKey,
     baseUrl,
-    diffSrc = 'HEAD^',
-    diffDst = 'HEAD',
+    diffsCmd = 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
     outputFile,
     promptFile = 'en',
-    excludePaths = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
     show = false,
     showReasoning = false,
     showDebug = false,
@@ -24,19 +22,19 @@ export async function codeReview(options: CodeReviewOptions) {
     outputPrice = 0,
   } = options;
 
-  // client
+  // openai client
   const client = new OpenAI({
     baseURL: baseUrl,
     apiKey,
   });
 
+  // get diffs
+  const cmdArr = diffsCmd.split(' ').filter((v) => !!v);
+  const { stdout: diffs } = await execa(cmdArr[0], cmdArr.slice(1));
+
   // get prompt
   const prompt = await getPrompt(promptFile, {
-    $DIFFS: await gitDiff({
-      src: diffSrc,
-      dst: diffDst,
-      excludePaths,
-    }),
+    $DIFFS: diffs,
   });
 
   // clear the output file

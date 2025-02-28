@@ -38,6 +38,7 @@
     "cli:watch": "tsx watch src/cli.ts",
     "build": "unbuild",
     "test": "vitest run",
+    "test:watch": "vitest watch",
     "test:cover": "vitest run --coverage",
     "check": "run-p check:*",
     "check:type": "tsc --noEmit",

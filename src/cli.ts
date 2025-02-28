@@ -16,18 +16,17 @@ const options = program
     `API key for authentication.${envOptions.apiKey ? ' (default: retrieve from env)' : ''}`,
   )
   .option('-u, --base-url <url>', 'Base URL for the API.', envOptions.baseUrl)
-  .option('-s, --diff-src <blob>', 'Git diff source blob.', envOptions.diffSrc || 'HEAD^')
-  .option('-d, --diff-dst <blob>', 'Git diff destination blob.', envOptions.diffDst || 'HEAD')
+  .option(
+    '-d, --diffs-cmd <cmd>',
+    'Command to get diffs for review.',
+    envOptions.diffsCmd ||
+      'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
+  )
   .option('-o, --output-file <file>', 'Save output to file.', envOptions.outputFile)
   .option(
     '-p, --prompt-file <fileOrBuiltinPrompt>',
     'Custom prompt file or builtin prompts (options: "en", "zh-cn", "zh-cn-nyan").',
     envOptions.promptFile || 'en',
-  )
-  .option(
-    '-e, --exclude-paths <path...>',
-    'Exclude paths.',
-    envOptions.excludePaths || ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
   )
   .option(
     '--show [bool]',

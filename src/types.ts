@@ -15,16 +15,10 @@ export type CodeReviewOptions = {
   baseUrl?: string;
 
   /**
-   * Git diff source blob.
-   * @default 'HEAD^'
+   * Command to get diffs for review.
+   * @default 'git log --no-prefix -p -n 1'
    */
-  diffSrc?: string;
-
-  /**
-   * Git diff destination blob.
-   * @default 'HEAD'
-   */
-  diffDst?: string;
+  diffsCmd?: string;
 
   /**
    * Save output to file.
@@ -36,12 +30,6 @@ export type CodeReviewOptions = {
    * @default 'en'
    */
   promptFile?: string;
-
-  /**
-   * @default
-   * ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock']
-   */
-  excludePaths?: string[];
 
   /**
    * Show on stdout.
