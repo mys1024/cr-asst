@@ -1,4 +1,8 @@
-export function genEnBuiltinPrompt() {
+import type { PromptReplacements } from '../types';
+
+export function genEnBuiltinPrompt(replacements: PromptReplacements) {
+  const { $DIFFS } = replacements;
+
   return `Below I will provide some code changes. Please read these changes, understand its intent, and review it.
 
 Your response should adhere to the following rules:
@@ -35,6 +39,6 @@ This is the response template you need to follow:
 This is the code changes you need to review:
 
 \`\`\`diff
-$DIFFS
+${$DIFFS}
 \`\`\``;
 }

@@ -75,3 +75,7 @@ export type CodeReviewOptions = {
 };
 
 export type PartialCodeReviewOptions = Partial<CodeReviewOptions>;
+
+export type PromptReplacements = {
+  $DIFFS: string;
+};

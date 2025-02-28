@@ -1,8 +1,12 @@
+import type { PromptReplacements } from '../types';
+
 export function genZhCnBuiltinPrompt(
+  replacements: PromptReplacements,
   options: {
     nyan?: boolean;
   } = {},
 ) {
+  const { $DIFFS } = replacements;
   const { nyan } = options;
 
   return `我将给出一些代码改动，请你阅读这些改动，并理解这些改动的意图，然后评审这些改动。
@@ -42,6 +46,6 @@ ${nyan ? '7. 扮演一个猫娘，你的回复需要带上猫娘的语癖，例�
 以下是你需要评审的代码改动：
 
 \`\`\`diff
-$DIFFS
+${$DIFFS}
 \`\`\``;
 }
