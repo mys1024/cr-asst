@@ -39,8 +39,8 @@ codeReview({
 | `CR_SHOW`            | Show on stdout.                                                               |
 | `CR_SHOW_REASONING`  | Show reasoning.                                                               |
 | `CR_SHOW_DEBUG`      | Show debug info.                                                              |
-| `CR_INPUT_PRICE`     | Price per million input tokens. For computing usage.                          |
-| `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing usage.                         |
+| `CR_INPUT_PRICE`     | Price per million input tokens. For computing cost in debug mode.             |
+| `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing cost in debug mode.            |
 
 ## License
 

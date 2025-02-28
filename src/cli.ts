@@ -46,13 +46,13 @@ const options = program
   )
   .option(
     '--input-price <price>',
-    'Price per million input tokens. For computing usage.',
+    'Price per million input tokens. For computing cost in debug mode.',
     parseFloat,
     typeof envOptions.inputPrice === 'number' ? envOptions.inputPrice : 0,
   )
   .option(
     '--output-price <price>',
-    'Price per million output tokens. For computing usage.',
+    'Price per million output tokens. For computing cost in debug mode.',
     parseFloat,
     typeof envOptions.outputPrice === 'number' ? envOptions.outputPrice : 0,
   )
