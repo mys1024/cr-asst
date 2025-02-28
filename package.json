@@ -51,7 +51,7 @@
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
     "execa": "^9.5.2",
-    "openai": "^4.85.4"
+    "openai": "^4.86.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
