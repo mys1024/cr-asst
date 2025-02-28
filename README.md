@@ -13,7 +13,7 @@ Review your code changes with AI assistant.
 
 ### CLI
 
-#### Show help
+#### Print help
 
 ```sh
 npx cr-asst -h
@@ -54,9 +54,9 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 | `CR_DIFFS_CMD`       | Command to get code diffs for review.                                         |
 | `CR_OUTPUT_FILE`     | Save review result to file.                                                   |
 | `CR_PROMPT_FILE`     | Custom prompt file or builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).  |
-| `CR_SHOW`            | Print review result to stdout.                                                |
-| `CR_SHOW_REASONING`  | Print reasoning to stdout (only available for models that support reasoning). |
-| `CR_SHOW_DEBUG`      | Print debug information to stdout.                                            |
+| `CR_PRINT`           | Print review result to stdout.                                                |
+| `CR_PRINT_REASONING` | Print reasoning to stdout (only available for models that support reasoning). |
+| `CR_PRINT_DEBUG`     | Print debug information to stdout.                                            |
 | `CR_INPUT_PRICE`     | Price per million input tokens. For computing cost.                           |
 | `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing cost.                          |
 

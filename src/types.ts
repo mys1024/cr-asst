@@ -1,67 +1,67 @@
 export type CodeReviewOptions = {
   /**
-   * Model to use.
+   * AI Model to use for review.
    */
   model: string;
 
   /**
-   * API key for authentication.
+   * API key for the AI service.
    */
   apiKey: string;
 
   /**
-   * Base URL for the API.
+   *	Base URL for the AI service API.
    */
   baseUrl?: string;
 
   /**
-   * Diffs to review. If not provided, will use diffsCmd to get diffs.
+   * Code diffs to review. If not provided, will use diffsCmd to get diffs.
    */
   diffs?: string;
 
   /**
-   * Command to get diffs for review.
+   * Command to get code diffs for review.
    * @default 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock'
    */
   diffsCmd?: string;
 
   /**
-   * Save output to file.
+   * Save review result to file.
    */
   outputFile?: string;
 
   /**
-   * 	Custom prompt file or builtin prompts (options: "en", "zh-cn", "zh-cn-nyan").
+   * Custom prompt file or builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).
    * @default 'en'
    */
   promptFile?: string;
 
   /**
-   * Show on stdout.
+   * Print review result to stdout.
    * @default false
    */
-  show?: boolean;
+  print?: boolean;
 
   /**
-   * Show reasoning.
+   * Print reasoning to stdout (only available for models that support reasoning).
    * @default false
    */
-  showReasoning?: boolean;
+  printReasoning?: boolean;
 
   /**
-   * Show debug info.
+   * Print debug information to stdout.
    * @default false
    */
-  showDebug?: boolean;
+  printDebug?: boolean;
 
   /**
-   * Price per million input tokens. For computing cost in debug mode.
+   * Price per million input tokens. For computing cost.
    * @default 0
    */
   inputPrice?: number;
 
   /**
-   * Price per million output tokens. For computing cost in debug mode.
+   * Price per million output tokens. For computing cost.
    * @default 0
    */
   outputPrice?: number;

@@ -21,9 +21,9 @@ export const envOptions: PartialCodeReviewOptions = {
   diffsCmd: env.CR_DIFFS_CMD,
   outputFile: env.CR_OUTPUT_FILE,
   promptFile: env.CR_PROMPT_FILE,
-  show: booleanEnvVar(env.CR_SHOW),
-  showReasoning: booleanEnvVar(env.CR_SHOW_REASONING),
-  showDebug: booleanEnvVar(env.CR_SHOW_DEBUG),
+  print: booleanEnvVar(env.CR_PRINT),
+  printReasoning: booleanEnvVar(env.CR_PRINT_REASONING),
+  printDebug: booleanEnvVar(env.CR_PRINT_DEBUG),
   inputPrice: floatEnvVar(env.CR_INPUT_PRICE),
   outputPrice: floatEnvVar(env.CR_OUTPUT_PRICE),
 };

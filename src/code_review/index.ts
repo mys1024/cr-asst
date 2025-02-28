@@ -17,9 +17,9 @@ export async function codeReview(options: CodeReviewOptions) {
     diffsCmd = 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
     outputFile,
     promptFile = 'en',
-    show = false,
-    showReasoning = false,
-    showDebug = false,
+    print = false,
+    printReasoning = false,
+    printDebug = false,
     inputPrice = 0,
     outputPrice = 0,
   } = options;
@@ -71,10 +71,10 @@ export async function codeReview(options: CodeReviewOptions) {
     // read reasoning content
     let reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
       ?.reasoning_content;
-    if (showReasoning && reasoningContentChunk) {
+    if (printReasoning && reasoningContentChunk) {
       if (!hasReasoning) {
         hasReasoning = true;
-        if (show) {
+        if (print) {
           stdout.write('> (Reasoning)\n> \n> ');
         }
         if (outputFile) {
@@ -83,7 +83,7 @@ export async function codeReview(options: CodeReviewOptions) {
       }
       reasoningContentChunk = reasoningContentChunk.replaceAll('\n', '\n> ');
       reasoningContent += reasoningContentChunk;
-      if (show) {
+      if (print) {
         stdout.write(reasoningContentChunk);
       }
       if (outputFile) {
@@ -95,7 +95,7 @@ export async function codeReview(options: CodeReviewOptions) {
     const contentChunk = chunk.choices[0]?.delta?.content;
     if (contentChunk) {
       content += contentChunk;
-      if (show) {
+      if (print) {
         stdout.write(contentChunk);
       }
       if (outputFile) {
@@ -119,7 +119,7 @@ export async function codeReview(options: CodeReviewOptions) {
   }
 
   // print the end line
-  if (show) {
+  if (print) {
     stdout.write('\n');
   }
   if (outputFile) {
@@ -127,7 +127,7 @@ export async function codeReview(options: CodeReviewOptions) {
   }
 
   // print debug info
-  if (showDebug) {
+  if (printDebug) {
     console.log();
     console.log('DEBUG INFO:');
     console.log();

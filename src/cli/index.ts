@@ -24,8 +24,8 @@ export async function cli() {
 
   // cli options
   const options = program
-    .version(version, '-v, --version', 'Show version.')
-    .helpOption('-h, --help', 'Show help.')
+    .version(version, '-v, --version', 'Print version.')
+    .helpOption('-h, --help', 'Print help.')
     .requiredOption('-m, --model <model>', 'AI Model to use for review.', envOptions.model)
     .option(
       '-k, --api-key <key>',
@@ -45,22 +45,22 @@ export async function cli() {
       envOptions.promptFile || 'en',
     )
     .option(
-      '--show [bool]',
+      '--print [bool]',
       'Print review result to stdout.',
       (val) => val !== 'false',
-      typeof envOptions.show === 'boolean' ? envOptions.show : true,
+      typeof envOptions.print === 'boolean' ? envOptions.print : true,
     )
     .option(
-      '--show-reasoning [bool]',
+      '--print-reasoning [bool]',
       'Print reasoning to stdout (only available for models that support reasoning).',
       (val) => val !== 'false',
-      typeof envOptions.showReasoning === 'boolean' ? envOptions.showReasoning : false,
+      typeof envOptions.printReasoning === 'boolean' ? envOptions.printReasoning : false,
     )
     .option(
-      '--show-debug [bool]',
+      '--print-debug [bool]',
       'Print debug information to stdout.',
       (val) => val !== 'false',
-      typeof envOptions.showDebug === 'boolean' ? envOptions.showDebug : false,
+      typeof envOptions.printDebug === 'boolean' ? envOptions.printDebug : false,
     )
     .option(
       '--input-price <price>',
