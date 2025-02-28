@@ -55,8 +55,8 @@ See [`CodeReviewOptions`](./src/types.ts) for more options.
 | `CR_SHOW`            | Show on stdout.                                                               |
 | `CR_SHOW_REASONING`  | Show reasoning.                                                               |
 | `CR_SHOW_DEBUG`      | Show debug info.                                                              |
-| `CR_INPUT_PRICE`     | Price per million input tokens. For computing cost in debug mode.             |
-| `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing cost in debug mode.            |
+| `CR_INPUT_PRICE`     | Price per million input tokens. For computing cost.                           |
+| `CR_OUTPUT_PRICE`    | Price per million output tokens. For computing cost.                          |
 
 Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file.
 
