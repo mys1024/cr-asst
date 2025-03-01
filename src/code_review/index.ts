@@ -11,7 +11,6 @@ export async function codeReview(options: CodeReviewOptions) {
     model,
     apiKey,
     baseUrl,
-    diffs,
     diffsCmd = 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
     outputFile,
     promptFile = 'en',
@@ -28,15 +27,18 @@ export async function codeReview(options: CodeReviewOptions) {
     apiKey,
   });
 
+  // get diffs
+  const diffs = options.diffs
+    ? options.diffs
+    : await (async () => {
+        const cmdArr = diffsCmd.split(' ').filter((v) => !!v);
+        const { stdout } = await execa(cmdArr[0], cmdArr.slice(1));
+        return stdout;
+      })();
+
   // get prompt
   const prompt = await getPrompt(promptFile, {
-    $DIFFS: diffs
-      ? diffs
-      : await (async () => {
-          const cmdArr = diffsCmd.split(' ').filter((v) => !!v);
-          const { stdout } = await execa(cmdArr[0], cmdArr.slice(1));
-          return stdout;
-        })(),
+    $DIFFS: diffs,
   });
 
   // clear output file
@@ -45,9 +47,8 @@ export async function codeReview(options: CodeReviewOptions) {
   }
 
   // init variables
-  let content = '';
   let reasoningContent = '';
-  let hasReasoning = false;
+  let content = '';
   let usage = {
     inputTokens: 0,
     outputTokens: 0,
@@ -67,25 +68,15 @@ export async function codeReview(options: CodeReviewOptions) {
   // read completion stream
   for await (const chunk of stream) {
     // read reasoning content
-    let reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
+    const reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
       ?.reasoning_content;
-    if (printReasoning && reasoningContentChunk) {
-      if (!hasReasoning) {
-        hasReasoning = true;
-        if (print) {
-          stdout.write('> (Reasoning)\n> \n> ');
-        }
-        if (outputFile) {
-          await appendFile(outputFile, '> (Reasoning)\n> \n> ');
-        }
+    if (reasoningContentChunk) {
+      if (print && printReasoning && !reasoningContent) {
+        stdout.write('> (Reasoning)\n> \n> ');
       }
-      reasoningContentChunk = reasoningContentChunk.replaceAll('\n', '\n> ');
       reasoningContent += reasoningContentChunk;
-      if (print) {
-        stdout.write(reasoningContentChunk);
-      }
-      if (outputFile) {
-        await appendFile(outputFile, reasoningContentChunk);
+      if (print && printReasoning) {
+        stdout.write(reasoningContentChunk.replaceAll('\n', '\n> '));
       }
     }
 
@@ -118,10 +109,7 @@ export async function codeReview(options: CodeReviewOptions) {
 
   // print end line
   if (print) {
-    stdout.write('\n');
-  }
-  if (outputFile) {
-    await appendFile(outputFile, '\n');
+    console.log();
   }
 
   // print debug info
