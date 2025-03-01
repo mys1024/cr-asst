@@ -49,13 +49,20 @@ export async function codeReview(options: CodeReviewOptions) {
   // init variables
   let reasoningContent = '';
   let content = '';
-  let usage = {
+  const usage = {
     inputTokens: 0,
     outputTokens: 0,
     totalTokens: 0,
     inputCost: 0,
     outputCost: 0,
     totalCost: 0,
+  };
+  const stats = {
+    startAt: Date.now(),
+    firstTokenReceivedAt: 0,
+    endAt: 0,
+    elapsedTime: 0,
+    speed: 0,
   };
 
   // create completion stream
@@ -67,6 +74,11 @@ export async function codeReview(options: CodeReviewOptions) {
 
   // read completion stream
   for await (const chunk of stream) {
+    // update stats
+    if (stats.firstTokenReceivedAt === 0) {
+      stats.firstTokenReceivedAt = Date.now();
+    }
+
     // read reasoning content
     const reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
       ?.reasoning_content;
@@ -94,16 +106,14 @@ export async function codeReview(options: CodeReviewOptions) {
 
     // update usage
     if (chunk.usage) {
-      usage = {
-        inputTokens: chunk.usage.prompt_tokens,
-        outputTokens: chunk.usage.completion_tokens,
-        totalTokens: chunk.usage.total_tokens,
-        inputCost: (inputPrice * usage.inputTokens) / 1_000_000,
-        outputCost: (outputPrice * usage.outputTokens) / 1_000_000,
-        totalCost:
-          (inputPrice * usage.inputTokens) / 1_000_000 +
-          (outputPrice * usage.outputTokens) / 1_000_000,
-      };
+      usage.inputTokens = chunk.usage.prompt_tokens;
+      usage.outputTokens = chunk.usage.completion_tokens;
+      usage.totalTokens = chunk.usage.total_tokens;
+      usage.inputCost = (inputPrice * usage.inputTokens) / 1_000_000;
+      usage.outputCost = (outputPrice * usage.outputTokens) / 1_000_000;
+      usage.totalCost =
+        (inputPrice * usage.inputTokens) / 1_000_000 +
+        (outputPrice * usage.outputTokens) / 1_000_000;
     }
   }
 
@@ -112,14 +122,19 @@ export async function codeReview(options: CodeReviewOptions) {
     console.log();
   }
 
+  // update stats
+  stats.endAt = Date.now();
+  stats.elapsedTime = stats.endAt - stats.startAt;
+  stats.speed = usage.outputTokens / (stats.elapsedTime / 1000);
+
   // print debug info
   if (printDebug) {
     console.log();
     console.log(
-      '[USAGE]',
-      Object.entries(usage)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(', '),
+      `[USAGE] inputTokens: ${usage.inputTokens}, outputTokens: ${usage.outputTokens}, totalTokens: ${usage.totalTokens}, inputCost: ${usage.inputCost.toFixed(6)}, outputCost: ${usage.outputCost.toFixed(6)}, totalCost: ${usage.totalCost.toFixed(6)}`,
+    );
+    console.log(
+      `[STATS] elapsedTime: ${(stats.elapsedTime / 1000).toFixed(2)}s, speed: ${stats.speed.toFixed(2)} tokens/s`,
     );
   }
 
@@ -127,7 +142,10 @@ export async function codeReview(options: CodeReviewOptions) {
   return {
     reasoningContent,
     content,
-    usage,
-    diffs,
+    debug: {
+      diffs,
+      usage,
+      stats,
+    },
   };
 }
