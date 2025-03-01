@@ -43,7 +43,7 @@ export type CodeReviewOptions = {
   print?: boolean;
 
   /**
-   * Print reasoning to stdout (only available for models that support reasoning).
+   * Print reasoning to stdout (only available for models that support `reasoning_content` field).
    * @default false
    */
   printReasoning?: boolean;

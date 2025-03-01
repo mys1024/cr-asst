@@ -50,7 +50,7 @@ async function cli() {
     )
     .option(
       '--print-reasoning [bool]',
-      'Print reasoning to stdout (only available for models that support reasoning).',
+      'Print reasoning to stdout (only available for models that support "reasoning_content" field).',
       (val) => val !== 'false',
       typeof envOptions.printReasoning === 'boolean' ? envOptions.printReasoning : false,
     )

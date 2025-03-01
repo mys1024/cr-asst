@@ -39,17 +39,10 @@ export async function codeReview(options: CodeReviewOptions) {
         })(),
   });
 
-  // clear the output file
+  // clear output file
   if (outputFile) {
     await writeFile(outputFile, '');
   }
-
-  // create completion stream
-  const stream = await client.chat.completions.create({
-    stream: true,
-    model,
-    messages: [{ role: 'user', content: prompt }],
-  });
 
   // init variables
   let content = '';
@@ -63,6 +56,13 @@ export async function codeReview(options: CodeReviewOptions) {
     outputCost: 0,
     totalCost: 0,
   };
+
+  // create completion stream
+  const stream = await client.chat.completions.create({
+    stream: true,
+    model,
+    messages: [{ role: 'user', content: prompt }],
+  });
 
   // read completion stream
   for await (const chunk of stream) {
@@ -116,7 +116,7 @@ export async function codeReview(options: CodeReviewOptions) {
     }
   }
 
-  // print the end line
+  // print end line
   if (print) {
     stdout.write('\n');
   }
