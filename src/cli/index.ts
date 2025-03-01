@@ -22,8 +22,6 @@ async function cli() {
 
   // cli options
   const options = program
-    .version(version, '-v, --version', 'Print version.')
-    .helpOption('-h, --help', 'Print help.')
     .requiredOption('-m, --model <model>', 'AI Model to use for review.', envOptions.model)
     .option(
       '-k, --api-key <key>',
@@ -72,6 +70,8 @@ async function cli() {
       parseFloat,
       typeof envOptions.outputPrice === 'number' ? envOptions.outputPrice : 0,
     )
+    .version(version, '-v, --version', 'Print version.')
+    .helpOption('-h, --help', 'Print help.')
     .parse(argv)
     .opts<CodeReviewOptions>();
 
