@@ -37,7 +37,7 @@ async function cli() {
     .option('-o, --output-file <file>', 'Save review result to file.', envOptions.outputFile)
     .option(
       '-p, --prompt-file <fileOrBuiltinPrompt>',
-      'Custom prompt file or builtin prompt (options: "en", "zh-cn", "zh-cn-nyan").',
+      'Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn", "zh-cn-nyan").',
       envOptions.promptFile || 'en',
     )
     .option(

@@ -22,21 +22,20 @@ npx cr-asst -h
 #### Code review
 
 ```sh
+COMMAND_TO_GET_CODE_DIFFS | npx cr-asst --model gpt-4 --api-key sk-xxx
+# for example:
 git log -p master.. | npx cr-asst --model gpt-4 --api-key sk-xxx
-# or
-npx cr-asst --diffs-cmd "git log -p master.." --model gpt-4 --api-key sk-xxx
 ```
 
-The option `--diffs-cmd` defaults to `git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock`.
-It means to get the code diffs of the last commit, excluding `package-lock.json`, `pnpm-lock.yaml` and `yarn.lock`.
+If `cr-asst` is executed directly, it defaults to get code diffs from the latest git commit, except for `package-lock.json`, `pnpm-lock.yaml` and `yarn.lock`.
 
 ### API
 
 ```javascript
 import { codeReview } from 'cr-asst';
 
-codeReview({
-  diffsCmd: 'git log -p master..', // or `diffs: 'DIFFS_TO_REVIEW'`
+const { content } = await codeReview({
+  diffs: 'CODE_DIFFS', // or `diffsCmd: 'COMMAND_TO_GET_CODE_DIFFS'`
   model: 'gpt-4',
   apiKey: 'sk-xxx',
   // other options...
@@ -44,6 +43,22 @@ codeReview({
 ```
 
 See [`CodeReviewOptions`](./src/types.ts) for more details.
+
+## Custom Prompt File
+
+You can use your custom prompt file by specifying the `--prompt-file` option.
+
+Your custom prompt file should include `$DIFFS`, which `cr-asst` will replace with the actual code diffs during execution.
+
+Here is a simple example of a custom prompt file:
+
+````markdown
+Please review the following code changes and provide your review comments:
+
+```diff
+$DIFFS
+```
+````
 
 ## Environment Variables (CLI Only)
 
@@ -54,7 +69,7 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 | `CR_BASE_URL`        | Base URL for the AI service API.                                                              |
 | `CR_DIFFS_CMD`       | Command to get code diffs for review.                                                         |
 | `CR_OUTPUT_FILE`     | Save review result to file.                                                                   |
-| `CR_PROMPT_FILE`     | Custom prompt file or builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).                  |
+| `CR_PROMPT_FILE`     | Path to a custom prompt file, or a builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).     |
 | `CR_PRINT`           | Print review result to stdout.                                                                |
 | `CR_PRINT_REASONING` | Print reasoning to stdout (only available for models that support `reasoning_content` field). |
 | `CR_PRINT_DEBUG`     | Print debug information to stdout.                                                            |

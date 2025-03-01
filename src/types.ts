@@ -31,7 +31,7 @@ export type CodeReviewOptions = {
   outputFile?: string;
 
   /**
-   * Custom prompt file or builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).
+   * Path to a custom prompt file, or a builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).
    * @default 'en'
    */
   promptFile?: string;
