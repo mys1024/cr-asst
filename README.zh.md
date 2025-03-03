@@ -53,7 +53,7 @@ const { content } = await codeReview({
 以下是一个简单的自定义提示词文件的示例：
 
 ````markdown
-请你评审以下的代码改动并给出评审意见：
+请评审以下的代码改动并给出评审意见：
 
 ```diff
 $DIFFS
@@ -76,7 +76,7 @@ $DIFFS
 | `CR_INPUT_PRICE`     | 每百万输入 token 的价格。用于计算费用。                                           |
 | `CR_OUTPUT_PRICE`    | 每百万输出 token 的价格。用于计算费用。                                           |
 
-此外，`cr-asst` 命令行使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。
+此外，`cr-asst` CLI 还会使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。
 
 ## License
 
