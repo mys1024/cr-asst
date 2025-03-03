@@ -59,10 +59,11 @@ export async function codeReview(options: CodeReviewOptions) {
   };
   const stats = {
     startAt: Date.now(),
-    firstTokenReceivedAt: 0,
-    endAt: 0,
-    elapsedTime: 0,
-    speed: 0,
+    firstTokenAt: 0,
+    finishAt: 0,
+    timeToFirstToken: 0,
+    timeToFinish: 0,
+    tokensPerSecond: 0,
   };
 
   // create completion stream
@@ -75,8 +76,8 @@ export async function codeReview(options: CodeReviewOptions) {
   // read completion stream
   for await (const chunk of stream) {
     // update stats
-    if (stats.firstTokenReceivedAt === 0) {
-      stats.firstTokenReceivedAt = Date.now();
+    if (stats.firstTokenAt === 0) {
+      stats.firstTokenAt = Date.now();
     }
 
     // read reasoning content
@@ -123,9 +124,10 @@ export async function codeReview(options: CodeReviewOptions) {
   }
 
   // update stats
-  stats.endAt = Date.now();
-  stats.elapsedTime = stats.endAt - stats.startAt;
-  stats.speed = usage.outputTokens / (stats.elapsedTime / 1000);
+  stats.finishAt = Date.now();
+  stats.timeToFirstToken = stats.firstTokenAt - stats.startAt;
+  stats.timeToFinish = stats.finishAt - stats.startAt;
+  stats.tokensPerSecond = usage.outputTokens / (stats.timeToFinish / 1000);
 
   // print debug info
   if (printDebug) {
@@ -134,7 +136,7 @@ export async function codeReview(options: CodeReviewOptions) {
       `[USAGE] inputTokens: ${usage.inputTokens}, outputTokens: ${usage.outputTokens}, totalTokens: ${usage.totalTokens}, inputCost: ${usage.inputCost.toFixed(6)}, outputCost: ${usage.outputCost.toFixed(6)}, totalCost: ${usage.totalCost.toFixed(6)}`,
     );
     console.log(
-      `[STATS] elapsedTime: ${(stats.elapsedTime / 1000).toFixed(2)}s, speed: ${stats.speed.toFixed(2)} tokens/s`,
+      `[STATS] timeToFirstToken: ${(stats.timeToFirstToken / 1000).toFixed(2)}s, timeToFinish: ${(stats.timeToFinish / 1000).toFixed(2)}s, tokensPerSecond: ${stats.tokensPerSecond.toFixed(2)} tokens/s`,
     );
   }
 
