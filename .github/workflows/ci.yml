@@ -42,7 +42,13 @@ jobs:
         run: pnpm run check
 
       - name: Test
-        run: pnpm run test
+        run: pnpm run test:cover
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: mys1024/cr-asst
 
       - name: Build
         run: pnpm run build
