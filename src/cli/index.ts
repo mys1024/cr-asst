@@ -22,6 +22,7 @@ async function cli() {
 
   // cli options
   const options = program
+    .name('cr-asst')
     .requiredOption('-m, --model <model>', 'AI Model to use for review.', envOptions.model)
     .option(
       '-k, --api-key <key>',
