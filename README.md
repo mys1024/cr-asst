@@ -8,7 +8,7 @@
 
 English | [中文](./README.zh.md)
 
-Review your code changes with AI assistant.
+Review your code changes with AI assistants.
 
 ## Usage
 

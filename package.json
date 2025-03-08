@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.12.2",
   "packageManager": "pnpm@10.6.1",
-  "description": "Review your code changes with AI assistant.",
+  "description": "Review your code changes with AI assistants.",
   "author": "mys1024",
   "license": "MIT",
   "homepage": "https://github.com/mys1024/cr-asst#readme",
