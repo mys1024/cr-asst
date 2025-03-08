@@ -45,7 +45,7 @@
   "dependencies": {
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
-    "execa": "^9.5.2",
+    "execa": "9.3.1",
     "openai": "^4.86.2"
   },
   "devDependencies": {
