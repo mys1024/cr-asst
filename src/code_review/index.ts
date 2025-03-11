@@ -3,9 +3,15 @@ import { writeFile, appendFile } from 'node:fs/promises';
 import OpenAI from 'openai';
 import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
-import type { CodeReviewOptions } from '../types';
+import { usageToString, statsToString } from './utils';
+import type {
+  CodeReviewOptions,
+  CodeReviewResult,
+  CodeReviewUsage,
+  CodeReviewStats,
+} from '../types';
 
-export async function codeReview(options: CodeReviewOptions) {
+export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // options
   const {
     model,
@@ -49,7 +55,7 @@ export async function codeReview(options: CodeReviewOptions) {
   // init variables
   let reasoningContent = '';
   let content = '';
-  const usage = {
+  const usage: CodeReviewUsage = {
     inputTokens: 0,
     outputTokens: 0,
     totalTokens: 0,
@@ -57,7 +63,7 @@ export async function codeReview(options: CodeReviewOptions) {
     outputCost: 0,
     totalCost: 0,
   };
-  const stats = {
+  const stats: CodeReviewStats = {
     startAt: Date.now(),
     firstTokenAt: 0,
     finishAt: 0,
@@ -110,11 +116,11 @@ export async function codeReview(options: CodeReviewOptions) {
       usage.inputTokens = chunk.usage.prompt_tokens;
       usage.outputTokens = chunk.usage.completion_tokens;
       usage.totalTokens = chunk.usage.total_tokens;
-      usage.inputCost = (inputPrice * usage.inputTokens) / 1_000_000;
-      usage.outputCost = (outputPrice * usage.outputTokens) / 1_000_000;
+      usage.inputCost = ((inputPrice || 0) * usage.inputTokens) / 1_000_000;
+      usage.outputCost = ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
       usage.totalCost =
-        (inputPrice * usage.inputTokens) / 1_000_000 +
-        (outputPrice * usage.outputTokens) / 1_000_000;
+        ((inputPrice || 0) * usage.inputTokens) / 1_000_000 +
+        ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
     }
   }
 
@@ -132,12 +138,8 @@ export async function codeReview(options: CodeReviewOptions) {
   // print debug info
   if (printDebug) {
     console.log();
-    console.log(
-      `[USAGE] inputTokens: ${usage.inputTokens}, outputTokens: ${usage.outputTokens}, totalTokens: ${usage.totalTokens}, inputCost: ${usage.inputCost.toFixed(6)}, outputCost: ${usage.outputCost.toFixed(6)}, totalCost: ${usage.totalCost.toFixed(6)}`,
-    );
-    console.log(
-      `[STATS] timeToFirstToken: ${(stats.timeToFirstToken / 1000).toFixed(2)}s, timeToFinish: ${(stats.timeToFinish / 1000).toFixed(2)}s, tokensPerSecond: ${stats.tokensPerSecond.toFixed(2)} tokens/s`,
-    );
+    console.log(usageToString(usage));
+    console.log(statsToString(stats));
   }
 
   // return

@@ -72,3 +72,31 @@ export type PartialCodeReviewOptions = Partial<CodeReviewOptions>;
 export type PromptReplacements = {
   $DIFFS: string;
 };
+
+export type CodeReviewUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  inputCost: number;
+  outputCost: number;
+  totalCost: number;
+};
+
+export type CodeReviewStats = {
+  startAt: number;
+  firstTokenAt: number;
+  finishAt: number;
+  timeToFirstToken: number;
+  timeToFinish: number;
+  tokensPerSecond: number;
+};
+
+export type CodeReviewResult = {
+  reasoningContent: string;
+  content: string;
+  debug: {
+    diffs: string;
+    usage: CodeReviewUsage;
+    stats: CodeReviewStats;
+  };
+};

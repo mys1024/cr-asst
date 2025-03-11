@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getPrompt } from './index';
+import { getPrompt } from '../index';
 
 describe('getPrompt()', () => {
   it('get builtin prompt: en', async () => {
@@ -17,7 +17,7 @@ describe('getPrompt()', () => {
   });
 
   it('get custom prompt', async () => {
-    expect((await getPrompt('README.md', { $DIFFS: 'git diff output' })).length).toBeGreaterThan(0);
+    expect((await getPrompt('README.md', { $DIFFS: '' })).length).toBeGreaterThan(0);
   });
 
   it('replacements', async () => {
