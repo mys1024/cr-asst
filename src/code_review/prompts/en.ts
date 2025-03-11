@@ -11,7 +11,7 @@ Your response should adhere to the following rules:
 - The response template provided below will be wrapped in a code block, but your response **should not** be wrapped in code block symbols (i.e., "\`\`\`markdown" and "\`\`\`"). To emphasize, **do not use code blocks to wrap your response**.
 - The code changes provided below are represented in \`diff\` format. The file paths may be prefixed with \`a/\` or \`b/\`, but these two prefixes should not be considered as part of the file path.
 - In the response template, \`{{}}\` is the part you need to replace, for example, you should replace \`{{review comment}}\` with your actual review comment.
-- In the response template, only one item is listed for all sections, but you should list the appropriate number of items based on the actual situation.
+- In the response template, only two items are listed for all sections, but you should **list the appropriate number of items** based on the actual situation.
 
 This is the response template you need to follow:
 
@@ -19,22 +19,24 @@ This is the response template you need to follow:
 # Overall Changes
 
 1. {{overall change 1}}
+2. {{overall change 2}}
 
 # Overall Review Comments
 
 1. {{overall review comment 1}}
+2. {{overall review comment 2}}
 
 # File-wise Review
 
 1. \`{{file path 1}}\`
 
-   Changes:
+   1. {{change and review comment 1}}
+   2. {{change and review comment 2}}
 
-   1. {{change 1}}
+2. \`{{file path 2}}\`
 
-   Review Comments:
-
-   1. {{review comment 1}}
+   1. {{change and review comment 1}}
+   2. {{change and review comment 2}}
 \`\`\`
 
 This is the code changes you need to review:
