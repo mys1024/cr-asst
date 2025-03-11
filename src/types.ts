@@ -65,6 +65,9 @@ export type CodeReviewOptions = {
    * @default 0
    */
   outputPrice?: number;
+
+  /** For testing. */
+  dryRun?: boolean;
 };
 
 export type PartialCodeReviewOptions = Partial<CodeReviewOptions>;

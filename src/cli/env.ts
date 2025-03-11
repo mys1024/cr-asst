@@ -2,11 +2,11 @@ import { env } from 'node:process';
 import 'dotenv/config';
 import type { PartialCodeReviewOptions } from '../types';
 
-function booleanEnvVar(envVar: string | undefined): boolean | undefined {
+export function booleanEnvVar(envVar: string | undefined): boolean | undefined {
   return envVar === 'true' ? true : envVar === 'false' ? false : undefined;
 }
 
-function floatEnvVar(envVar: string | undefined): number | undefined {
+export function floatEnvVar(envVar: string | undefined): number | undefined {
   if (envVar === undefined) {
     return;
   }

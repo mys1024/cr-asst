@@ -25,6 +25,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     printDebug = false,
     inputPrice = 0,
     outputPrice = 0,
+    dryRun = false,
   } = options;
 
   // create openai client
@@ -72,61 +73,63 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     tokensPerSecond: 0,
   };
 
-  // create completion stream
-  const stream = await client.chat.completions.create({
-    stream: true,
-    model,
-    messages: [{ role: 'user', content: prompt }],
-  });
+  if (!dryRun) {
+    // create completion stream
+    const stream = await client.chat.completions.create({
+      stream: true,
+      model,
+      messages: [{ role: 'user', content: prompt }],
+    });
 
-  // read completion stream
-  for await (const chunk of stream) {
-    // update stats
-    if (stats.firstTokenAt === 0) {
-      stats.firstTokenAt = Date.now();
+    // read completion stream
+    for await (const chunk of stream) {
+      // update stats
+      if (stats.firstTokenAt === 0) {
+        stats.firstTokenAt = Date.now();
+      }
+
+      // read reasoning content
+      const reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
+        ?.reasoning_content;
+      if (reasoningContentChunk) {
+        if (print && printReasoning && !reasoningContent) {
+          stdout.write('> (Reasoning)\n> \n> ');
+        }
+        reasoningContent += reasoningContentChunk;
+        if (print && printReasoning) {
+          stdout.write(reasoningContentChunk.replaceAll('\n', '\n> '));
+        }
+      }
+
+      // read content
+      const contentChunk = chunk.choices[0]?.delta?.content;
+      if (contentChunk) {
+        content += contentChunk;
+        if (print) {
+          stdout.write(contentChunk);
+        }
+        if (outputFile) {
+          await appendFile(outputFile, contentChunk);
+        }
+      }
+
+      // update usage
+      if (chunk.usage) {
+        usage.inputTokens = chunk.usage.prompt_tokens;
+        usage.outputTokens = chunk.usage.completion_tokens;
+        usage.totalTokens = chunk.usage.total_tokens;
+        usage.inputCost = ((inputPrice || 0) * usage.inputTokens) / 1_000_000;
+        usage.outputCost = ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
+        usage.totalCost =
+          ((inputPrice || 0) * usage.inputTokens) / 1_000_000 +
+          ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
+      }
     }
 
-    // read reasoning content
-    const reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
-      ?.reasoning_content;
-    if (reasoningContentChunk) {
-      if (print && printReasoning && !reasoningContent) {
-        stdout.write('> (Reasoning)\n> \n> ');
-      }
-      reasoningContent += reasoningContentChunk;
-      if (print && printReasoning) {
-        stdout.write(reasoningContentChunk.replaceAll('\n', '\n> '));
-      }
+    // print end line
+    if (print) {
+      console.log();
     }
-
-    // read content
-    const contentChunk = chunk.choices[0]?.delta?.content;
-    if (contentChunk) {
-      content += contentChunk;
-      if (print) {
-        stdout.write(contentChunk);
-      }
-      if (outputFile) {
-        await appendFile(outputFile, contentChunk);
-      }
-    }
-
-    // update usage
-    if (chunk.usage) {
-      usage.inputTokens = chunk.usage.prompt_tokens;
-      usage.outputTokens = chunk.usage.completion_tokens;
-      usage.totalTokens = chunk.usage.total_tokens;
-      usage.inputCost = ((inputPrice || 0) * usage.inputTokens) / 1_000_000;
-      usage.outputCost = ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
-      usage.totalCost =
-        ((inputPrice || 0) * usage.inputTokens) / 1_000_000 +
-        ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
-    }
-  }
-
-  // print end line
-  if (print) {
-    console.log();
   }
 
   // update stats
