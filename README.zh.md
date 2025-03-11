@@ -74,8 +74,8 @@ $DIFFS
 | `CR_PRINT`           | 是否在标准输出中显示评审结果。                                                    |
 | `CR_PRINT_REASONING` | 是否在标准输出中显示推理内容（仅对支持返回 `reasoning_content` 字段的模型有效）。 |
 | `CR_PRINT_DEBUG`     | 是否在标准输出中显示调试信息。                                                    |
-| `CR_INPUT_PRICE`     | 每百万输入 token 的价格。用于计算费用。                                           |
-| `CR_OUTPUT_PRICE`    | 每百万输出 token 的价格。用于计算费用。                                           |
+| `CR_INPUT_PRICE`     | 百万输入 token 的价格。用于统计。                                                 |
+| `CR_OUTPUT_PRICE`    | 百万输出 token 的价格。用于统计。                                                 |
 
 此外，`cr-asst` CLI 还会使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。
 
