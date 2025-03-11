@@ -62,13 +62,13 @@ export async function cli() {
     )
     .option(
       '--input-price <price>',
-      'Price per million input tokens. For computing cost.',
+      'Price for one million input tokens. Used for statistics.',
       parseFloat,
       typeof envOptions.inputPrice === 'number' ? envOptions.inputPrice : 0,
     )
     .option(
       '--output-price <price>',
-      'Price per million output tokens. For computing cost.',
+      'Price for one million output tokens. Used for statistics.',
       parseFloat,
       typeof envOptions.outputPrice === 'number' ? envOptions.outputPrice : 0,
     )

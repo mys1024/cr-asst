@@ -55,18 +55,20 @@ export type CodeReviewOptions = {
   printDebug?: boolean;
 
   /**
-   * Price per million input tokens. For computing cost.
+   * Price for one million input tokens. Used for statistics.
    * @default 0
    */
   inputPrice?: number;
 
   /**
-   * Price per million output tokens. For computing cost.
+   * Price for one million output tokens. Used for statistics.
    * @default 0
    */
   outputPrice?: number;
 
-  /** For testing. */
+  /** For testing.
+   *  @default false
+   */
   dryRun?: boolean;
 };
 
