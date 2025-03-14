@@ -4,7 +4,6 @@
 [![npm-version](https://img.shields.io/npm/v/cr-asst?color=%23cb3837)](https://www.npmjs.com/package/cr-asst)
 [![workflow-ci](https://img.shields.io/github/actions/workflow/status/mys1024/cr-asst/ci.yml?label=ci)](https://github.com/mys1024/cr-asst/actions/workflows/ci.yml)
 [![workflow-release](https://img.shields.io/github/actions/workflow/status/mys1024/cr-asst/release.yml?label=release)](https://github.com/mys1024/cr-asst/actions/workflows/release.yml)
-[![codecov](https://codecov.io/gh/mys1024/cr-asst/graph/badge.svg?token=nRaMsQAh1N)](https://codecov.io/gh/mys1024/cr-asst)
 
 English | [中文](./README.zh.md)
 
