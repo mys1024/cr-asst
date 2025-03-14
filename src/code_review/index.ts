@@ -23,8 +23,6 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     print = false,
     printReasoning = false,
     printDebug = false,
-    inputPrice = 0,
-    outputPrice = 0,
     dryRun = false,
   } = options;
 
@@ -60,9 +58,6 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     inputTokens: 0,
     outputTokens: 0,
     totalTokens: 0,
-    inputCost: 0,
-    outputCost: 0,
-    totalCost: 0,
   };
   const stats: CodeReviewStats = {
     startAt: Date.now(),
@@ -118,11 +113,6 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
         usage.inputTokens = chunk.usage.prompt_tokens;
         usage.outputTokens = chunk.usage.completion_tokens;
         usage.totalTokens = chunk.usage.total_tokens;
-        usage.inputCost = ((inputPrice || 0) * usage.inputTokens) / 1_000_000;
-        usage.outputCost = ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
-        usage.totalCost =
-          ((inputPrice || 0) * usage.inputTokens) / 1_000_000 +
-          ((outputPrice || 0) * usage.outputTokens) / 1_000_000;
       }
     }
 

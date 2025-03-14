@@ -54,18 +54,6 @@ export type CodeReviewOptions = {
    */
   printDebug?: boolean;
 
-  /**
-   * Price for one million input tokens. Used for statistics.
-   * @default 0
-   */
-  inputPrice?: number;
-
-  /**
-   * Price for one million output tokens. Used for statistics.
-   * @default 0
-   */
-  outputPrice?: number;
-
   /** For testing.
    *  @default false
    */
@@ -82,9 +70,6 @@ export type CodeReviewUsage = {
   inputTokens: number;
   outputTokens: number;
   totalTokens: number;
-  inputCost: number;
-  outputCost: number;
-  totalCost: number;
 };
 
 export type CodeReviewStats = {

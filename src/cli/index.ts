@@ -60,18 +60,6 @@ export async function cli() {
       (val) => val !== 'false',
       typeof envOptions.printDebug === 'boolean' ? envOptions.printDebug : false,
     )
-    .option(
-      '--input-price <price>',
-      'Price for one million input tokens. Used for statistics.',
-      parseFloat,
-      typeof envOptions.inputPrice === 'number' ? envOptions.inputPrice : 0,
-    )
-    .option(
-      '--output-price <price>',
-      'Price for one million output tokens. Used for statistics.',
-      parseFloat,
-      typeof envOptions.outputPrice === 'number' ? envOptions.outputPrice : 0,
-    )
     .version(version, '-v, --version', 'Print version.')
     .helpOption('-h, --help', 'Print help.')
     .parse(argv)

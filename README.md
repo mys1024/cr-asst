@@ -14,13 +14,13 @@ Review your code changes with AI assistants.
 
 ### CLI
 
-#### Print help
+#### Print Help
 
 ```sh
 npx cr-asst -h
 ```
 
-#### Code review
+#### Code Review
 
 ```sh
 COMMAND_TO_GET_CODE_DIFFS | npx cr-asst --model gpt-4 --api-key sk-xxx
@@ -74,8 +74,6 @@ $DIFFS
 | `CR_PRINT`           | Print review result to stdout.                                                                |
 | `CR_PRINT_REASONING` | Print reasoning to stdout (only available for models that support `reasoning_content` field). |
 | `CR_PRINT_DEBUG`     | Print debug information to stdout.                                                            |
-| `CR_INPUT_PRICE`     | Price for one million input tokens. Used for statistics.                                      |
-| `CR_OUTPUT_PRICE`    | Price for one million output tokens. Used for statistics.                                     |
 
 Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file in the current working directory.
 

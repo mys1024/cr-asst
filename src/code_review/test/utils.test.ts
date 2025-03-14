@@ -5,16 +5,11 @@ describe('usageToString()', () => {
   it('case 1', async () => {
     const inputTokens = 156;
     const outputTokens = 3245;
-    const inputCost = (2 * inputTokens) / 1_000_000;
-    const outputCost = (8 * outputTokens) / 1_000_000;
     expect(
       usageToString({
         inputTokens,
         outputTokens,
         totalTokens: inputTokens + outputTokens,
-        inputCost,
-        outputCost,
-        totalCost: inputCost + outputCost,
       }),
     ).toMatchSnapshot();
   });

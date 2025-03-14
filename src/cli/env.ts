@@ -24,6 +24,4 @@ export const envOptions: PartialCodeReviewOptions = {
   print: booleanEnvVar(env.CR_PRINT),
   printReasoning: booleanEnvVar(env.CR_PRINT_REASONING),
   printDebug: booleanEnvVar(env.CR_PRINT_DEBUG),
-  inputPrice: floatEnvVar(env.CR_INPUT_PRICE),
-  outputPrice: floatEnvVar(env.CR_OUTPUT_PRICE),
 };
