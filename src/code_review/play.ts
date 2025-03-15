@@ -1,37 +1,65 @@
+import { cwd } from 'node:process';
 import OpenAI from 'openai';
-import { defineTools } from './ai/tools';
+import { defineTools } from './ai/tool';
 import { chat } from './ai/chat';
 import type { CodeReviewOptions } from '../types';
+import { readFile, writeFile } from 'node:fs/promises';
+
+/* ------------------------------------------------ tools ------------------------------------------------ */
 
 const { tools, toolCallsHandler } = defineTools([
   {
     type: 'function',
     function: {
-      name: 'getWeather',
-      description: 'get weather info',
+      name: 'getCwd',
+      description: 'get current working directory',
+      strict: true,
+    },
+    functionImpl: cwd,
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'readFile',
+      description: 'read text from a file',
       strict: true,
       parameters: {
         type: 'object',
         properties: {
-          city: { type: 'string', description: 'city name' },
+          path: { type: 'string', description: 'path to a file' },
         },
-        required: ['city'],
+        required: ['path'],
       },
     },
-    functionImpl: (args: { city: string }) => {
-      const weathers = ['sunny', 'rainy', 'cloudy', 'snowy', 'windy'];
-      return {
-        city: args.city,
-        weather: weathers[randomInt(0, weathers.length)],
-        temperature: `${randomInt(-20, 40)}°C`,
-      };
+    functionImpl: async (args: { path: string }) => {
+      const { path } = args;
+      return await readFile(path, 'utf-8');
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'writeFile',
+      description: 'write text to a file',
+      strict: true,
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'path to a file' },
+          text: { type: 'string', description: 'text to be wrote to the file' },
+        },
+        required: ['path', 'text'],
+      },
+    },
+    functionImpl: async (args: { path: string; text: string }) => {
+      const { path, text } = args;
+      await writeFile(path, text);
+      return { status: 'ok' };
     },
   },
 ]);
 
-function randomInt(min: number, max: number) {
-  return min + Math.floor(Math.random() * (max - min));
-}
+/* ------------------------------------------------ play ------------------------------------------------ */
 
 export async function play(options: CodeReviewOptions) {
   // options
@@ -48,6 +76,11 @@ export async function play(options: CodeReviewOptions) {
     model,
     tools,
     toolCallsHandler,
-    messages: [{ role: 'user', content: '今天深圳和上海天气怎么样' }],
+    messages: [
+      {
+        role: 'user',
+        content: '读取 ./en.local.md，翻译为中文，然后写入 zh.local.md',
+      },
+    ],
   });
 }

@@ -13,3 +13,4 @@ temp
 
 .env
 cr-asst.output.md
+*.local.md

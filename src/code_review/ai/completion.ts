@@ -17,16 +17,6 @@ export type CompletionStats = {
   tokensPerSecond?: number;
 };
 
-export type ToolCall = {
-  index: number;
-  id: string;
-  type: string;
-  function: {
-    name: string;
-    arguments: string;
-  };
-};
-
 type CompletionStream = AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
 
 type OnDeltaReasoningContent = (args: { delta: string; counter: number }) => void;
@@ -92,7 +82,7 @@ async function readCompletionStream(options: {
   let reasoningContentCounter = 0;
   let content: string | undefined;
   let contentCounter = 0;
-  let toolCalls: ToolCall[] | undefined;
+  let toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[] | undefined;
   const toolCallsCounter = new Map<number, number>();
   let finishReason: OpenAI.Chat.Completions.ChatCompletionChunk.Choice['finish_reason'] = null;
   let usage: CompletionUsage | undefined;

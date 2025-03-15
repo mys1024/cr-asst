@@ -1,5 +1,4 @@
 import { OpenAI } from 'openai';
-import type { ToolCall } from './completion';
 
 export function defineTools(
   tools: (OpenAI.Chat.Completions.ChatCompletionTool & {
@@ -14,7 +13,14 @@ export function defineTools(
     fns.set(tool.function.name, tool.functionImpl);
   }
 
-  async function toolCallsHandler(toolCalls: ToolCall[]) {
+  async function toolCallsHandler(
+    toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[],
+  ) {
+    const asstMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+      role: 'assistant',
+      tool_calls: toolCalls,
+    };
+
     const toolMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = (
       await Promise.all(
         toolCalls.map((toolCall) =>
@@ -35,9 +41,10 @@ export function defineTools(
     ).map(({ id, result }) => ({
       role: 'tool',
       tool_call_id: id,
-      content: JSON.stringify(result),
+      content: JSON.stringify(result) || '',
     }));
-    return toolMessages;
+
+    return [asstMessage, ...toolMessages];
   }
 
   return {

@@ -1,7 +1,7 @@
 import { stdout } from 'node:process';
 import OpenAI from 'openai';
 import { usageToString, statsToString } from '../utils';
-import { createCompletion, type ToolCall } from './completion';
+import { createCompletion } from './completion';
 
 export async function chat(options: {
   client: OpenAI;
@@ -12,7 +12,7 @@ export async function chat(options: {
     functionImpl: (args: any) => unknown;
   })[];
   toolCallsHandler?: (
-    toolCalls: ToolCall[],
+    toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[],
   ) => Promise<OpenAI.Chat.Completions.ChatCompletionMessageParam[]>;
   round?: number;
 }) {
