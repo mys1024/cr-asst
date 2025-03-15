@@ -1,3 +1,5 @@
+import type { CompletionUsage, CompletionStats } from './code_review/completion';
+
 export type CodeReviewOptions = {
   /**
    * AI Model to use for review.
@@ -53,11 +55,6 @@ export type CodeReviewOptions = {
    * @default false
    */
   printDebug?: boolean;
-
-  /** For testing.
-   *  @default false
-   */
-  dryRun?: boolean;
 };
 
 export type PartialCodeReviewOptions = Partial<CodeReviewOptions>;
@@ -66,27 +63,12 @@ export type PromptReplacements = {
   $DIFFS: string;
 };
 
-export type CodeReviewUsage = {
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-};
-
-export type CodeReviewStats = {
-  startAt: number;
-  firstTokenAt: number;
-  finishAt: number;
-  timeToFirstToken: number;
-  timeToFinish: number;
-  tokensPerSecond: number;
-};
-
 export type CodeReviewResult = {
-  reasoningContent: string;
+  reasoningContent?: string;
   content: string;
   debug: {
     diffs: string;
-    usage: CodeReviewUsage;
-    stats: CodeReviewStats;
+    stats: CompletionStats;
+    usage?: CompletionUsage;
   };
 };

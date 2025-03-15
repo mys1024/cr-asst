@@ -4,12 +4,8 @@ import OpenAI from 'openai';
 import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
 import { usageToString, statsToString } from './utils';
-import type {
-  CodeReviewOptions,
-  CodeReviewResult,
-  CodeReviewUsage,
-  CodeReviewStats,
-} from '../types';
+import { createCompletion } from './completion';
+import type { CodeReviewOptions, CodeReviewResult } from '../types';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // options
@@ -23,7 +19,6 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     print = false,
     printReasoning = false,
     printDebug = false,
-    dryRun = false,
   } = options;
 
   // create openai client
@@ -46,103 +41,52 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     $DIFFS: diffs,
   });
 
-  // clear output file
-  if (outputFile) {
-    await writeFile(outputFile, '');
-  }
-
-  // init variables
-  let reasoningContent = '';
-  let content = '';
-  const usage: CodeReviewUsage = {
-    inputTokens: 0,
-    outputTokens: 0,
-    totalTokens: 0,
-  };
-  const stats: CodeReviewStats = {
-    startAt: Date.now(),
-    firstTokenAt: 0,
-    finishAt: 0,
-    timeToFirstToken: 0,
-    timeToFinish: 0,
-    tokensPerSecond: 0,
-  };
-
-  if (!dryRun) {
-    // create completion stream
-    const stream = await client.chat.completions.create({
-      stream: true,
-      model,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    // read completion stream
-    for await (const chunk of stream) {
-      // update stats
-      if (stats.firstTokenAt === 0) {
-        stats.firstTokenAt = Date.now();
-      }
-
-      // read reasoning content
-      const reasoningContentChunk = (chunk.choices[0]?.delta as { reasoning_content?: string })
-        ?.reasoning_content;
-      if (reasoningContentChunk) {
-        if (print && printReasoning && !reasoningContent) {
+  // review
+  const completion = await createCompletion({
+    client,
+    model,
+    messages: [{ role: 'user', content: prompt }],
+    onDeltaReasoningContent: (delta: string, counter) => {
+      if (print && printReasoning) {
+        if (counter === 0) {
           stdout.write('> (Reasoning)\n> \n> ');
         }
-        reasoningContent += reasoningContentChunk;
-        if (print && printReasoning) {
-          stdout.write(reasoningContentChunk.replaceAll('\n', '\n> '));
-        }
+        stdout.write(delta.replaceAll('\n', '\n> '));
       }
-
-      // read content
-      const contentChunk = chunk.choices[0]?.delta?.content;
-      if (contentChunk) {
-        content += contentChunk;
-        if (print) {
-          stdout.write(contentChunk);
-        }
-        if (outputFile) {
-          await appendFile(outputFile, contentChunk);
-        }
+    },
+    onDeltaContent: async (delta, counter) => {
+      if (counter === 0 && outputFile) {
+        await writeFile(outputFile, ''); // clear output file
       }
-
-      // update usage
-      if (chunk.usage) {
-        usage.inputTokens = chunk.usage.prompt_tokens;
-        usage.outputTokens = chunk.usage.completion_tokens;
-        usage.totalTokens = chunk.usage.total_tokens;
+      if (print) {
+        stdout.write(delta);
       }
-    }
+      if (outputFile) {
+        await appendFile(outputFile, delta);
+      }
+    },
+  });
 
-    // print end line
-    if (print) {
-      console.log();
-    }
+  // print end line
+  if (print) {
+    console.log();
   }
-
-  // update stats
-  stats.finishAt = Date.now();
-  stats.timeToFirstToken = stats.firstTokenAt - stats.startAt;
-  stats.timeToFinish = stats.finishAt - stats.startAt;
-  stats.tokensPerSecond = usage.outputTokens / (stats.timeToFinish / 1000);
 
   // print debug info
   if (printDebug) {
     console.log();
-    console.log(usageToString(usage));
-    console.log(statsToString(stats));
+    console.log(usageToString(completion.usage));
+    console.log(statsToString(completion.stats));
   }
 
   // return
   return {
-    reasoningContent,
-    content,
+    reasoningContent: completion.reasoningContent,
+    content: completion.content || '',
     debug: {
       diffs,
-      usage,
-      stats,
+      stats: completion.stats,
+      usage: completion.usage,
     },
   };
 }

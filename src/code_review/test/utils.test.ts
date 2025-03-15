@@ -3,13 +3,13 @@ import { usageToString, statsToString } from '../utils';
 
 describe('usageToString()', () => {
   it('case 1', async () => {
-    const inputTokens = 156;
-    const outputTokens = 3245;
+    const promptTokens = 156;
+    const completionTokens = 3245;
     expect(
       usageToString({
-        inputTokens,
-        outputTokens,
-        totalTokens: inputTokens + outputTokens,
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
       }),
     ).toMatchSnapshot();
   });
@@ -17,17 +17,17 @@ describe('usageToString()', () => {
 
 describe('statsToString()', () => {
   it('case 1', async () => {
-    const startAt = 1741661141870;
-    const firstTokenAt = 1741661156970;
-    const finishAt = 1741661185963;
+    const startedAt = 1741661141870;
+    const firstTokenReceivedAt = 1741661156970;
+    const finishedAt = 1741661185963;
     expect(
       statsToString({
-        startAt,
-        firstTokenAt,
-        finishAt,
-        timeToFirstToken: firstTokenAt - startAt,
-        timeToFinish: finishAt - startAt,
-        tokensPerSecond: 6554 / ((finishAt - startAt) / 1000),
+        startedAt,
+        firstTokenReceivedAt,
+        finishedAt,
+        timeToFirstToken: firstTokenReceivedAt - startedAt,
+        timeToFinish: finishedAt - startedAt,
+        tokensPerSecond: 6554 / ((finishedAt - startedAt) / 1000),
       }),
     ).toMatchSnapshot();
   });
