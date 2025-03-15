@@ -17,11 +17,28 @@ export type CompletionStats = {
   tokensPerSecond?: number;
 };
 
+export type ToolCall = {
+  index: number;
+  id: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
+};
+
 type CompletionStream = AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
 
-type OnDeltaReasoningContent = (delta: string, counter: number) => void;
+type OnDeltaReasoningContent = (args: { delta: string; counter: number }) => void;
 
-type OnDeltaContent = (delta: string, counter: number) => void;
+type OnDeltaContent = (args: { delta: string; counter: number }) => void;
+
+type OnDeltaToolCall = (args: {
+  index: number;
+  name: string;
+  deltaArguments: string;
+  counter: number;
+}) => void;
 
 /* ------------------------------------------------ createCompletion ------------------------------------------------ */
 
@@ -32,8 +49,17 @@ export async function createCompletion(options: {
   tools?: OpenAI.Chat.Completions.ChatCompletionTool[];
   onDeltaReasoningContent?: OnDeltaReasoningContent;
   onDeltaContent?: OnDeltaContent;
+  onDeltaToolCall?: OnDeltaToolCall;
 }) {
-  const { client, model, messages, tools, onDeltaReasoningContent, onDeltaContent } = options;
+  const {
+    client,
+    model,
+    messages,
+    tools,
+    onDeltaReasoningContent,
+    onDeltaContent,
+    onDeltaToolCall,
+  } = options;
 
   const stream = await client.chat.completions.create({
     stream: true,
@@ -46,6 +72,7 @@ export async function createCompletion(options: {
     stream,
     onDeltaReasoningContent,
     onDeltaContent,
+    onDeltaToolCall,
   });
 
   return completion;
@@ -57,24 +84,16 @@ async function readCompletionStream(options: {
   stream: CompletionStream;
   onDeltaReasoningContent?: OnDeltaReasoningContent;
   onDeltaContent?: OnDeltaContent;
+  onDeltaToolCall?: OnDeltaToolCall;
 }) {
-  const { stream, onDeltaReasoningContent, onDeltaContent } = options;
+  const { stream, onDeltaReasoningContent, onDeltaContent, onDeltaToolCall } = options;
 
   let reasoningContent: string | undefined;
   let reasoningContentCounter = 0;
   let content: string | undefined;
   let contentCounter = 0;
-  let toolCalls:
-    | {
-        index: number;
-        id: string;
-        type: string;
-        function: {
-          name: string;
-          arguments: string;
-        };
-      }[]
-    | undefined;
+  let toolCalls: ToolCall[] | undefined;
+  const toolCallsCounter = new Map<number, number>();
   let finishReason: OpenAI.Chat.Completions.ChatCompletionChunk.Choice['finish_reason'] = null;
   let usage: CompletionUsage | undefined;
   const stats: CompletionStats = {
@@ -117,13 +136,19 @@ async function readCompletionStream(options: {
 
     if (typeof delta.reasoning_content === 'string') {
       reasoningContent = (reasoningContent || '') + delta.reasoning_content;
-      onDeltaReasoningContent?.(delta.reasoning_content, reasoningContentCounter);
+      onDeltaReasoningContent?.({
+        delta: delta.reasoning_content,
+        counter: reasoningContentCounter,
+      });
       reasoningContentCounter++;
     }
 
     if (typeof delta.content === 'string') {
       content = (content || '') + delta.content;
-      onDeltaContent?.(delta.content, contentCounter);
+      onDeltaContent?.({
+        delta: delta.content,
+        counter: contentCounter,
+      });
       contentCounter++;
     }
 
@@ -152,6 +177,14 @@ async function readCompletionStream(options: {
         if (toolCallChunk.function?.arguments) {
           toolCall.function.arguments += toolCallChunk.function.arguments;
         }
+        const counter = toolCallsCounter.get(toolCallChunk.index) || 0;
+        onDeltaToolCall?.({
+          index: toolCallChunk.index,
+          name: toolCall.function.name,
+          deltaArguments: toolCallChunk.function?.arguments || '',
+          counter: counter,
+        });
+        toolCallsCounter.set(toolCallChunk.index, counter + 1);
       }
     }
   }

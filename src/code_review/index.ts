@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
 import { usageToString, statsToString } from './utils';
-import { createCompletion } from './completion';
+import { createCompletion } from './ai/completion';
 import type { CodeReviewOptions, CodeReviewResult } from '../types';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
@@ -46,7 +46,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     client,
     model,
     messages: [{ role: 'user', content: prompt }],
-    onDeltaReasoningContent: (delta: string, counter) => {
+    onDeltaReasoningContent: ({ delta, counter }) => {
       if (print && printReasoning) {
         if (counter === 0) {
           stdout.write('> (Reasoning)\n> \n> ');
@@ -54,7 +54,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
         stdout.write(delta.replaceAll('\n', '\n> '));
       }
     },
-    onDeltaContent: async (delta, counter) => {
+    onDeltaContent: async ({ delta, counter }) => {
       if (counter === 0 && outputFile) {
         await writeFile(outputFile, ''); // clear output file
       }

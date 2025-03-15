@@ -1,4 +1,4 @@
-import type { CompletionUsage, CompletionStats } from './completion';
+import type { CompletionUsage, CompletionStats } from './ai/completion';
 
 export function usageToString(usage?: CompletionUsage) {
   return [

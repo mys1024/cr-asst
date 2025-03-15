@@ -1,4 +1,4 @@
-import type { CompletionUsage, CompletionStats } from './code_review/completion';
+import type { CompletionUsage, CompletionStats } from './code_review/ai/completion';
 
 export type CodeReviewOptions = {
   /**

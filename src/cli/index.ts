@@ -4,7 +4,7 @@ import { exit, stdin, argv } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { program } from 'commander';
 import { version } from '../../package.json';
-import { codeReview } from '../code_review';
+import { play } from '../code_review/play';
 import { envOptions } from './env';
 import type { CodeReviewOptions } from '../types';
 
@@ -76,7 +76,7 @@ export async function cli() {
   }
 
   // run code review
-  codeReview({
+  play({
     diffs,
     ...options,
   });
