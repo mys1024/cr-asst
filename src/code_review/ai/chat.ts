@@ -11,64 +11,99 @@ export async function chat(options: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     functionImpl: (args: any) => unknown;
   })[];
-  toolCallsHandler?: (
+  handleToolCalls?: (
     toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[],
   ) => Promise<OpenAI.Chat.Completions.ChatCompletionMessageParam[]>;
-  round?: number;
+  invisibleMessageIndex?: number;
 }) {
   // options
-  const { client, model, messages, tools, toolCallsHandler, round = 1 } = options;
+  const { client, model, messages, tools, handleToolCalls } = options;
+  let { invisibleMessageIndex = 0 } = options;
 
-  // print round divider
-  console.log(
-    `------------------------------------------------ Round ${round} ------------------------------------------------\n`,
-  );
+  // print input messages
+  for (; invisibleMessageIndex < messages.length; invisibleMessageIndex++) {
+    console.log(
+      `\n------------------------------------------------ Message ${invisibleMessageIndex + 1} ------------------------------------------------\n`,
+    );
+    const message = messages[invisibleMessageIndex];
+    console.log(`[role] ${message.role}`);
+    if (message.role === 'tool') {
+      console.log(`[tool_call_id] ${message.tool_call_id}`);
+    }
+    if (message.role === 'assistant') {
+      message.tool_calls?.forEach((toolCall, index) => {
+        console.log(
+          `[tool_call] index: ${index}, tool_call_id: ${toolCall.id}, function_name: ${toolCall.function.name}, arguments: ${toolCall.function.arguments}`,
+        );
+      });
+    }
+    if (message.content) {
+      console.log(`[content] ${message.content}`);
+    }
+  }
 
   // completion
+  console.log(
+    `\n------------------------------------------------ Message ${invisibleMessageIndex + 1} ------------------------------------------------\n`,
+  );
   let currentToolCallIndex = 0;
   const completion = await createCompletion({
     client,
     model,
     tools,
     messages,
-    onDeltaReasoningContent: ({ delta, counter }) => {
+    onDeltaReasoningContent: ({ role, delta, counter }) => {
       if (counter === 0) {
-        stdout.write('> (Reasoning)\n> \n> ');
+        stdout.write(`[role] ${role}\n`);
+        stdout.write('[reasoning_content] ');
       }
-      stdout.write(delta.replaceAll('\n', '\n> '));
-    },
-    onDeltaContent: ({ delta }) => {
       stdout.write(delta);
     },
-    onDeltaToolCall: ({ index, name, deltaArguments, counter }) => {
+    onDeltaContent: ({ role, delta, counter }) => {
+      if (counter === 0) {
+        stdout.write(`[role] ${role}\n`);
+        stdout.write('[content] ');
+      }
+      stdout.write(delta);
+    },
+    onDeltaToolCall: ({ role, index, id, name, deltaArguments, counter }) => {
       if (index !== currentToolCallIndex) {
         currentToolCallIndex = index;
-        stdout.write('\n\n');
+        stdout.write('\n');
       }
       if (counter === 0) {
-        stdout.write(`> (Tool call: ${index})\n> name: ${name}\n> arguments: `);
+        if (currentToolCallIndex === 0) {
+          stdout.write(`[role] ${role}\n`);
+        }
+        stdout.write(
+          `[tool_call] index: ${index}, tool_call_id: ${id}, function_name: ${name}, arguments: `,
+        );
       }
       stdout.write(deltaArguments);
     },
   });
 
-  // print debug info
+  // print usage and stats
   console.log();
   console.log();
   console.log(usageToString(completion.usage));
   console.log(statsToString(completion.stats));
-  console.log();
 
   // handle tool calls
   if (completion.toolCalls) {
-    if (!toolCallsHandler) {
+    if (!handleToolCalls) {
       throw new Error('No tool calls handler.');
     }
-    const toolMessages = await toolCallsHandler(completion.toolCalls);
-    messages.push(...toolMessages);
-    chat({
+    const asstMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+      role: 'assistant',
+      content: completion.content,
+      tool_calls: completion.toolCalls,
+    };
+    const toolMessages = await handleToolCalls(completion.toolCalls);
+    messages.push(asstMessage, ...toolMessages);
+    await chat({
       ...options,
-      round: round + 1,
+      invisibleMessageIndex: invisibleMessageIndex + 1,
     });
   }
 }

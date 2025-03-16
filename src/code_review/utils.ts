@@ -2,7 +2,7 @@ import type { CompletionUsage, CompletionStats } from './ai/completion';
 
 export function usageToString(usage?: CompletionUsage) {
   return [
-    '[USAGE]',
+    '[usage]',
     [
       `promptTokens: ${usage?.promptTokens ? usage.promptTokens : 'N/A'}`,
       `completionTokens: ${usage?.completionTokens ? usage.completionTokens : 'N/A'}`,
@@ -13,7 +13,7 @@ export function usageToString(usage?: CompletionUsage) {
 
 export function statsToString(stats: CompletionStats) {
   return [
-    '[STATS]',
+    '[stats]',
     [
       `timeToFirstToken: ${(stats.timeToFirstToken / 1000).toFixed(2)}s`,
       `timeToFinish: ${(stats.timeToFinish / 1000).toFixed(2)}s`,

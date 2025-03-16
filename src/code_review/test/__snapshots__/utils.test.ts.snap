@@ -1,5 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`statsToString() > case 1 1`] = `"[STATS] timeToFirstToken: 15.10s, timeToFinish: 44.09s, tokensPerSecond: 148.64 tokens/s"`;
+exports[`statsToString() > case 1 1`] = `"[stats] timeToFirstToken: 15.10s, timeToFinish: 44.09s, tokensPerSecond: 148.64 tokens/s"`;
 
-exports[`usageToString() > case 1 1`] = `"[USAGE] promptTokens: 156, completionTokens: 3245, totalTokens: 3401"`;
+exports[`usageToString() > case 1 1`] = `"[usage] promptTokens: 156, completionTokens: 3245, totalTokens: 3401"`;

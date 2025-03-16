@@ -19,12 +19,14 @@ export type CompletionStats = {
 
 type CompletionStream = AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
 
-type OnDeltaReasoningContent = (args: { delta: string; counter: number }) => void;
+type OnDeltaReasoningContent = (args: { role: string; delta: string; counter: number }) => void;
 
-type OnDeltaContent = (args: { delta: string; counter: number }) => void;
+type OnDeltaContent = (args: { role: string; delta: string; counter: number }) => void;
 
 type OnDeltaToolCall = (args: {
+  role: string;
   index: number;
+  id: string;
   name: string;
   deltaArguments: string;
   counter: number;
@@ -78,6 +80,7 @@ async function readCompletionStream(options: {
 }) {
   const { stream, onDeltaReasoningContent, onDeltaContent, onDeltaToolCall } = options;
 
+  let role = 'assistant';
   let reasoningContent: string | undefined;
   let reasoningContentCounter = 0;
   let content: string | undefined;
@@ -124,18 +127,24 @@ async function readCompletionStream(options: {
       continue;
     }
 
-    if (typeof delta.reasoning_content === 'string') {
+    if (delta.role) {
+      role = delta.role;
+    }
+
+    if (delta.reasoning_content) {
       reasoningContent = (reasoningContent || '') + delta.reasoning_content;
       onDeltaReasoningContent?.({
+        role,
         delta: delta.reasoning_content,
         counter: reasoningContentCounter,
       });
       reasoningContentCounter++;
     }
 
-    if (typeof delta.content === 'string') {
+    if (delta.content) {
       content = (content || '') + delta.content;
       onDeltaContent?.({
+        role,
         delta: delta.content,
         counter: contentCounter,
       });
@@ -169,7 +178,9 @@ async function readCompletionStream(options: {
         }
         const counter = toolCallsCounter.get(toolCallChunk.index) || 0;
         onDeltaToolCall?.({
+          role,
           index: toolCallChunk.index,
+          id: toolCall.id,
           name: toolCall.function.name,
           deltaArguments: toolCallChunk.function?.arguments || '',
           counter: counter,
@@ -187,6 +198,7 @@ async function readCompletionStream(options: {
   }
 
   return {
+    role,
     reasoningContent,
     content,
     toolCalls,
