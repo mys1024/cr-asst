@@ -2,7 +2,7 @@ import type { CompletionUsage, CompletionStats } from './code_review/completion'
 
 export type CodeReviewOptions = {
   /**
-   * AI Model to use for review.
+   * AI model to use for review.
    */
   model: string;
 
@@ -33,7 +33,7 @@ export type CodeReviewOptions = {
   outputFile?: string;
 
   /**
-   * Path to a custom prompt file, or a builtin prompt (options: `en`, `zh-cn`, `zh-cn-nyan`).
+   * Path to a custom prompt file, or a builtin prompt (options: `en`, `zh-cn`).
    * @default 'en'
    */
   promptFile?: string;

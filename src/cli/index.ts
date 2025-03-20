@@ -24,7 +24,7 @@ export async function cli() {
   // cli options
   const options = program
     .name('cr-asst')
-    .requiredOption('-m, --model <model>', 'AI Model to use for review.', envOptions.model)
+    .requiredOption('-m, --model <model>', 'AI model to use for review.', envOptions.model)
     .option(
       '-k, --api-key <key>',
       `API key for the AI service.${envOptions.apiKey ? ' (default: retrieve from env)' : ''}`,
@@ -39,7 +39,7 @@ export async function cli() {
     .option('-o, --output-file <file>', 'Save review result to file.', envOptions.outputFile)
     .option(
       '-p, --prompt-file <fileOrBuiltinPrompt>',
-      'Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn", "zh-cn-nyan").',
+      'Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").',
       envOptions.promptFile || 'en',
     )
     .option(
