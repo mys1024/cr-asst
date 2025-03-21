@@ -121,6 +121,12 @@ $DIFFS
 
 另外，`cr-asst` CLI 还会使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。
 
+## 与 Github Actions 集成
+
+你可以用 [`cr-asst-action`](https://github.com/mys1024/cr-asst-action) 来将 `cr-asst` 和 Github Actions 集成。
+
+如果你在国内使用与 Github Actions 兼容的自托管 CI/CD 系统（如 Gitea Actions），为了避免网络问题，可以引用在 Gitee 上的这个[镜像仓库](https://gitee.com/mys1024/cr-asst-action)。
+
 ## License
 
 [MIT](./LICENSE) License &copy; 2025-PRESENT mys1024

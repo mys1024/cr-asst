@@ -130,6 +130,10 @@ $DIFFS
 
 Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file in the current working directory.
 
+## Integrating with GitHub Actions
+
+You can use [`cr-asst-action`](https://github.com/mys1024/cr-asst-action) to integrate `cr-asst` with Github Actions.
+
 ## License
 
 [MIT](./LICENSE) License &copy; 2025-PRESENT mys1024
