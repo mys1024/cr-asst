@@ -2,6 +2,7 @@
 
 import { exit, stdin, argv } from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { realpath } from 'node:fs/promises';
 import { program } from 'commander';
 import { version } from '../../package.json';
 import { codeReview } from '../code_review';
@@ -82,6 +83,8 @@ export async function cli() {
   });
 }
 
-if (argv[1] === fileURLToPath(import.meta.url)) {
-  cli();
-}
+(async () => {
+  if ((await realpath(argv[1])) === fileURLToPath(import.meta.url)) {
+    cli();
+  }
+})();
