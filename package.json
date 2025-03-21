@@ -28,8 +28,6 @@
     "dist"
   ],
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "postinstall": "simple-git-hooks",
     "cli": "tsx src/cli/index.ts",
     "cli:watch": "tsx watch src/cli/index.ts",
     "build": "unbuild",
@@ -41,6 +39,7 @@
     "check:lint": "eslint .",
     "check:format": "prettier --check .",
     "taze": "taze -I",
+    "prepare": "simple-git-hooks",
     "release": "bumpp"
   },
   "dependencies": {
