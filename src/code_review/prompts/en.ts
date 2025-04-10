@@ -12,6 +12,7 @@ Your response should adhere to the following rules:
 - The code changes provided below are represented in \`diff\` format. The file paths may be prefixed with \`a/\` or \`b/\`, but these two prefixes should not be considered as part of the file path.
 - In the response template, \`{{}}\` is the part you need to replace, for example, you should replace \`{{review comment}}\` with your actual review comment.
 - In the response template, as an example, only one item item is listed in every sections. You should **list the appropriate number of items** based on the actual situation.
+- In "File-wise Review," it is not necessary to provide review comments for every change, only those with issues or needing improvement require review comments.
 
 This is the response template you need to follow:
 
