@@ -12,11 +12,10 @@ jobs:
   ci:
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [20, null]
         os: [ubuntu-latest, windows-latest]
       fail-fast: false
-
-    name: node ${{ matrix.node-version }}, ${{ matrix.os }}
+    name: CI (${{ matrix.os }}, ${{ matrix.node-version && format('node-{0}', matrix.node-version) || '.node-version' }})
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -31,8 +30,8 @@ jobs:
       - name: Setup node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          registry-url: 'https://registry.npmjs.org'
           node-version: ${{ matrix.node-version }}
+          node-version-file: .node-version
           cache: pnpm
 
       - name: Install
@@ -45,7 +44,7 @@ jobs:
         run: pnpm run test:cover
 
       - name: Upload coverage reports to Codecov
-        if: ${{ matrix.node-version == '22' && matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.node-version == null && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

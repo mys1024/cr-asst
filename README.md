@@ -66,32 +66,25 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 # File-wise Review
 
 1. `src/code_review/completion.ts`
-
    1. Added a new file to handle the creation and reading of completion streams. This improves modularity by encapsulating the completion logic in a single place.
 
 2. `src/code_review/index.ts`
-
    1. Updated the `codeReview` function to use the new `createCompletion` function, simplifying the main logic and removing redundant code.
    2. Removed the `dryRun` option and related logic, making the function more straightforward.
 
 3. `src/code_review/test/__snapshots__/utils.test.ts.snap`
-
    1. Updated the snapshot to reflect the renaming of `inputTokens` and `outputTokens` to `promptTokens` and `completionTokens`.
 
 4. `src/code_review/test/index.test.ts`
-
    1. Deleted the test file since it was specific to the `dryRun` option, which has been removed.
 
 5. `src/code_review/test/utils.test.ts`
-
    1. Updated the test cases to use the new token naming conventions (`promptTokens` and `completionTokens`).
 
 6. `src/code_review/utils.ts`
-
    1. Updated the utility functions to use the new `CompletionUsage` and `CompletionStats` types, aligning with the changes in the completion logic.
 
 7. `src/types.ts`
-
    1. Removed the `dryRun` option from `CodeReviewOptions`.
    2. Updated the `CodeReviewResult` type to use `CompletionStats` and `CompletionUsage` from the new `completion.ts` file, ensuring type consistency across the codebase.
 ```

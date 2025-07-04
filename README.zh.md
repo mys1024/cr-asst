@@ -68,21 +68,17 @@ const { content } = await codeReview({
 # 按文件评审
 
 1. `src/code_review/completion.ts`
-
    1. 新增了 `createCompletion` 和 `readCompletionStream` 函数，用于处理 OpenAI 的 `completion` 流式请求。这些函数的封装使得代码逻辑更加清晰，便于复用和维护。
    2. 引入了 `CompletionUsage` 和 `CompletionStats` 类型，用于记录 `completion` 的使用情况和性能统计。这些类型的定义使得数据结构更加明确。
 
 2. `src/code_review/index.ts`
-
    1. 移除了 `dryRun` 选项，简化了 `codeReview` 函数的逻辑。这一改动使得函数的行为更加直接，减少了不必要的复杂性。
    2. 使用 `createCompletion` 函数替代了原有的流式处理逻辑，使得代码更加简洁，且职责更加单一。
 
 3. `src/code_review/utils.ts`
-
    1. 修改了 `usageToString` 和 `statsToString` 函数，使其与新的 `CompletionUsage` 和 `CompletionStats` 类型兼容。同时，添加了对 `undefined` 值的处理，提升了代码的健壮性。
 
 4. `src/types.ts`
-
    1. 移除了 `CodeReviewUsage` 和 `CodeReviewStats` 类型，改为使用 `CompletionUsage` 和 `CompletionStats` 类型。这一改动减少了重复的类型定义，提升了代码的一致性。
    2. 移除了 `dryRun` 选项，简化了 `CodeReviewOptions` 类型的定义。
 ```
