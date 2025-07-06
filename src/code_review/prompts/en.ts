@@ -7,6 +7,7 @@ export function genEnBuiltinPrompt(replacements: PromptReplacements) {
 
 Your response should adhere to the following rules:
 
+- Your response should be in English.
 - Your response should follow the format of the response template.
 - The response template provided below will be wrapped in a code block, but your response **should not** be wrapped in code block symbols (i.e., "\`\`\`markdown" and "\`\`\`"). To emphasize, **do not use code blocks to wrap your response**.
 - In the response template, \`{{}}\` is the part you need to replace, for example, you should replace \`{{review comment}}\` with your actual review comment.
