@@ -2,6 +2,10 @@ import { stdout } from 'node:process';
 import { writeFile } from 'node:fs/promises';
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createXai } from '@ai-sdk/xai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
 import { usageToString, statsToString } from './utils';
@@ -10,9 +14,10 @@ import type { CodeReviewOptions, CodeReviewResult, CompletionStats } from '../ty
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // options
   const {
+    provider = 'openai',
+    baseUrl,
     model,
     apiKey,
-    baseUrl,
     diffsCmd = 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
     outputFile,
     promptFile = 'en',
@@ -45,11 +50,24 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   };
 
   // get review result
+  const providerInst = (
+    provider === 'openai'
+      ? createOpenAI
+      : provider === 'deepseek'
+        ? createDeepSeek
+        : provider === 'xai'
+          ? createXai
+          : provider === 'anthropic'
+            ? createAnthropic
+            : provider === 'google'
+              ? createGoogleGenerativeAI
+              : createOpenAI
+  )({
+    apiKey,
+    baseURL: baseUrl,
+  });
   const result = streamText({
-    model: createOpenAI({
-      apiKey,
-      baseURL: baseUrl,
-    })(model),
+    model: providerInst(model),
     prompt,
   });
 
@@ -57,24 +75,25 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   let textPartCnt = 0;
   let reasoningPartCnt = 0;
   for await (const streamPart of result.fullStream) {
-    textPartCnt++;
-    reasoningPartCnt++;
     if (!stats.firstTokenReceivedAt) {
       stats.firstTokenReceivedAt = Date.now();
     }
-    if (!print) {
-      continue;
-    }
     if (streamPart.type === 'text-delta') {
-      if (textPartCnt === 0 && reasoningPartCnt > 0 && printReasoning) {
-        stdout.write('\n');
+      if (print) {
+        if (textPartCnt === 0 && reasoningPartCnt > 0 && printReasoning) {
+          stdout.write('\n');
+        }
+        stdout.write(streamPart.textDelta);
       }
-      stdout.write(streamPart.textDelta);
+      textPartCnt++;
     } else if (streamPart.type === 'reasoning' && printReasoning) {
-      if (reasoningPartCnt === 0) {
-        stdout.write('> (Reasoning)\n> \n> ');
+      if (print) {
+        if (reasoningPartCnt === 0) {
+          stdout.write('> (Reasoning)\n> \n> ');
+        }
+        stdout.write(streamPart.textDelta.replaceAll('\n', '\n> '));
       }
-      stdout.write(streamPart.textDelta.replaceAll('\n', '\n> '));
+      reasoningPartCnt++;
     }
   }
   if (print && (textPartCnt > 0 || reasoningPartCnt > 0)) {

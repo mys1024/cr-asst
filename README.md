@@ -22,12 +22,20 @@ npx cr-asst -h
 #### Code Review
 
 ```sh
-COMMAND_TO_GET_CODE_DIFFS | npx cr-asst --model gpt-4 --api-key sk-xxx
+COMMAND_TO_GET_CODE_DIFFS | npx cr-asst --provider openai --model gpt-4 --api-key sk-xxx
 # for example:
-git log -p master.. | npx cr-asst --model gpt-4 --api-key sk-xxx
+git log -p master.. | npx cr-asst --provider openai --model gpt-4 --api-key sk-xxx
 ```
 
 If `cr-asst` is executed directly, it defaults to get code diffs from the latest git commit, except for `package-lock.json`, `pnpm-lock.yaml` and `yarn.lock`.
+
+Supported AI service providers:
+
+- openai
+- deepseek
+- xai
+- anthropic
+- google
 
 ### API
 
@@ -36,6 +44,7 @@ import { codeReview } from 'cr-asst';
 
 const { content } = await codeReview({
   diffs: 'CODE_DIFFS', // or `diffsCmd: 'COMMAND_TO_GET_CODE_DIFFS'`
+  provider: 'openai',
   model: 'gpt-4',
   apiKey: 'sk-xxx',
   // other options...
@@ -109,17 +118,18 @@ $DIFFS
 
 `cr-asst` reads the following environment variables:
 
-| Environment Variable | Description                                                                                   |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| `CR_MODEL`           | AI model to use for review.                                                                   |
-| `CR_API_KEY`         | API key for the AI service.                                                                   |
-| `CR_BASE_URL`        | Base URL for the AI service API.                                                              |
-| `CR_DIFFS_CMD`       | Command to get code diffs for review.                                                         |
-| `CR_OUTPUT_FILE`     | Save review result to file.                                                                   |
-| `CR_PROMPT_FILE`     | Path to a custom prompt file, or a builtin prompt (options: `en`, `zh-cn`).                   |
-| `CR_PRINT`           | Print review result to stdout.                                                                |
-| `CR_PRINT_REASONING` | Print reasoning to stdout (only available for models that support `reasoning_content` field). |
-| `CR_PRINT_DEBUG`     | Print debug information to stdout.                                                            |
+| Environment Variable | Description                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------- |
+| `CR_PROVIDER`        | AI service provider (options: "openai", "deepseek", "xai", "anthropic", "google"). |
+| `CR_BASE_URL`        | Base URL for the AI service API.                                                   |
+| `CR_API_KEY`         | API key for the AI service.                                                        |
+| `CR_MODEL`           | AI model to use for review.                                                        |
+| `CR_DIFFS_CMD`       | Command to get code diffs for review.                                              |
+| `CR_OUTPUT_FILE`     | Save review result to file.                                                        |
+| `CR_PROMPT_FILE`     | Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").        |
+| `CR_PRINT`           | Print review result to stdout.                                                     |
+| `CR_PRINT_REASONING` | Print reasoning to stdout (only valid for models that support reasoning).          |
+| `CR_PRINT_DEBUG`     | Print debug information to stdout.                                                 |
 
 Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file in the current working directory.
 

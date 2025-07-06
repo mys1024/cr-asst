@@ -1,10 +1,19 @@
 import type { LanguageModelUsage } from 'ai';
 
+export type CodeReviewProvider = 'openai' | 'deepseek' | 'xai' | 'anthropic' | 'google';
+
 export type CodeReviewOptions = {
   /**
-   * AI model to use for review.
+   * AI service provider (options: "openai", "deepseek", "xai", "anthropic", "google").
+   * @default 'openai''
    */
-  model: string;
+  provider?: CodeReviewProvider;
+
+  /**
+   * Base URL for the AI service API.
+   * @default undefined
+   */
+  baseUrl?: string;
 
   /**
    * API key for the AI service.
@@ -12,12 +21,13 @@ export type CodeReviewOptions = {
   apiKey: string;
 
   /**
-   *	Base URL for the AI service API.
+   * AI model to use for review.
    */
-  baseUrl?: string;
+  model: string;
 
   /**
    * Code diffs to review. If not provided, will use diffsCmd to get diffs.
+   * @default undefined
    */
   diffs?: string;
 
@@ -29,6 +39,7 @@ export type CodeReviewOptions = {
 
   /**
    * Save review result to file.
+   * @default undefined
    */
   outputFile?: string;
 
@@ -45,7 +56,7 @@ export type CodeReviewOptions = {
   print?: boolean;
 
   /**
-   * Print reasoning to stdout (only available for models that support `reasoning_content` field).
+   * Print reasoning to stdout (only valid for models that support reasoning).
    * @default false
    */
   printReasoning?: boolean;

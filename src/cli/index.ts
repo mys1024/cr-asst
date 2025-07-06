@@ -25,12 +25,17 @@ export async function cli() {
   // cli options
   const options = program
     .name('cr-asst')
-    .requiredOption('-m, --model <model>', 'AI model to use for review.', envOptions.model)
+    .option(
+      '-P, --provider <provider>',
+      'AI service provider (options: "openai", "deepseek", "xai", "anthropic", "google").',
+      envOptions.provider || 'openai',
+    )
+    .option('-u, --base-url <url>', 'Base URL for the AI service API.', envOptions.baseUrl)
     .option(
       '-k, --api-key <key>',
       `API key for the AI service.${envOptions.apiKey ? ' (default: retrieve from env)' : ''}`,
     )
-    .option('-u, --base-url <url>', 'Base URL for the AI service API.', envOptions.baseUrl)
+    .requiredOption('-m, --model <model>', 'AI model to use for review.', envOptions.model)
     .option(
       '-d, --diffs-cmd <cmd>',
       'Command to get code diffs for review.',
@@ -51,7 +56,7 @@ export async function cli() {
     )
     .option(
       '--print-reasoning [bool]',
-      'Print reasoning to stdout (only available for models that support "reasoning_content" field).',
+      'Print reasoning to stdout (only valid for models that support reasoning).',
       (val) => val !== 'false',
       typeof envOptions.printReasoning === 'boolean' ? envOptions.printReasoning : false,
     )
