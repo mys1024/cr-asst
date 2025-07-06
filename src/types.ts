@@ -5,7 +5,7 @@ export type CodeReviewProvider = 'openai' | 'deepseek' | 'xai' | 'anthropic' | '
 export type CodeReviewOptions = {
   /**
    * AI service provider (options: "openai", "deepseek", "xai", "anthropic", "google").
-   * @default 'openai''
+   * @default 'openai'
    */
   provider?: CodeReviewProvider;
 
