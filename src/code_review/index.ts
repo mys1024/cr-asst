@@ -1,11 +1,11 @@
 import { stdout } from 'node:process';
-import { writeFile, appendFile } from 'node:fs/promises';
-import OpenAI from 'openai';
+import { writeFile } from 'node:fs/promises';
+import { streamText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { execa } from 'execa';
 import { getPrompt } from './prompts/index';
 import { usageToString, statsToString } from './utils';
-import { createCompletion } from './completion';
-import type { CodeReviewOptions, CodeReviewResult } from '../types';
+import type { CodeReviewOptions, CodeReviewResult, CompletionStats } from '../types';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // options
@@ -21,12 +21,6 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     printDebug = false,
   } = options;
 
-  // create openai client
-  const client = new OpenAI({
-    baseURL: baseUrl,
-    apiKey,
-  });
-
   // get diffs
   const diffs = options.diffs
     ? options.diffs
@@ -41,52 +35,83 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     $DIFFS: diffs,
   });
 
-  // review
-  const completion = await createCompletion({
-    client,
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    onDeltaReasoningContent: (delta: string, counter) => {
-      if (print && printReasoning) {
-        if (counter === 0) {
-          stdout.write('> (Reasoning)\n> \n> ');
-        }
-        stdout.write(delta.replaceAll('\n', '\n> '));
-      }
-    },
-    onDeltaContent: async (delta, counter) => {
-      if (counter === 0 && outputFile) {
-        await writeFile(outputFile, ''); // clear output file
-      }
-      if (print) {
-        stdout.write(delta);
-      }
-      if (outputFile) {
-        await appendFile(outputFile, delta);
-      }
-    },
+  // init stats
+  const stats: CompletionStats = {
+    startedAt: Date.now(),
+    firstTokenReceivedAt: 0,
+    finishedAt: 0,
+    timeToFirstToken: 0,
+    timeToFinish: 0,
+  };
+
+  // get review result
+  const result = streamText({
+    model: createOpenAI({
+      apiKey,
+      baseURL: baseUrl,
+    })(model),
+    prompt,
   });
 
-  // print end line
-  if (print) {
-    console.log();
+  // print review delta and update stats
+  let textPartCnt = 0;
+  let reasoningPartCnt = 0;
+  for await (const streamPart of result.fullStream) {
+    textPartCnt++;
+    reasoningPartCnt++;
+    if (!stats.firstTokenReceivedAt) {
+      stats.firstTokenReceivedAt = Date.now();
+    }
+    if (!print) {
+      continue;
+    }
+    if (streamPart.type === 'text-delta') {
+      if (textPartCnt === 0 && reasoningPartCnt > 0 && printReasoning) {
+        stdout.write('\n');
+      }
+      stdout.write(streamPart.textDelta);
+    } else if (streamPart.type === 'reasoning' && printReasoning) {
+      if (reasoningPartCnt === 0) {
+        stdout.write('> (Reasoning)\n> \n> ');
+      }
+      stdout.write(streamPart.textDelta.replaceAll('\n', '\n> '));
+    }
   }
+  if (print && (textPartCnt > 0 || reasoningPartCnt > 0)) {
+    stdout.write('\n');
+  }
+  stats.finishedAt = Date.now();
+  stats.timeToFirstToken = stats.firstTokenReceivedAt - stats.startedAt;
+  stats.timeToFinish = stats.finishedAt - stats.startedAt;
+  if (await result.usage) {
+    stats.tokensPerSecond = (await result.usage).completionTokens / (stats.timeToFinish / 1000);
+  }
+
+  // extract data from result
+  const text = await result.text;
+  const reasoning = await result.reasoning;
+  const usage = await result.usage;
 
   // print debug info
   if (printDebug) {
     console.log();
-    console.log(usageToString(completion.usage));
-    console.log(statsToString(completion.stats));
+    console.log(usageToString(usage));
+    console.log(statsToString(stats));
+  }
+
+  // write output file
+  if (outputFile) {
+    await writeFile(outputFile, text);
   }
 
   // return
   return {
-    reasoningContent: completion.reasoningContent,
-    content: completion.content || '',
+    content: text,
+    reasoningContent: reasoning,
     debug: {
       diffs,
-      stats: completion.stats,
-      usage: completion.usage,
+      stats,
+      usage,
     },
   };
 }

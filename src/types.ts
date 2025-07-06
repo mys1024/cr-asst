@@ -1,4 +1,4 @@
-import type { CompletionUsage, CompletionStats } from './code_review/completion';
+import type { LanguageModelUsage } from 'ai';
 
 export type CodeReviewOptions = {
   /**
@@ -63,9 +63,20 @@ export type PromptReplacements = {
   $DIFFS: string;
 };
 
+export type CompletionUsage = LanguageModelUsage;
+
+export type CompletionStats = {
+  startedAt: number;
+  firstTokenReceivedAt: number;
+  finishedAt: number;
+  timeToFirstToken: number;
+  timeToFinish: number;
+  tokensPerSecond?: number;
+};
+
 export type CodeReviewResult = {
-  reasoningContent?: string;
   content: string;
+  reasoningContent?: string;
   debug: {
     diffs: string;
     stats: CompletionStats;
