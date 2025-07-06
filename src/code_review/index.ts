@@ -1,4 +1,5 @@
 import { stdout } from 'node:process';
+import { inspect } from 'node:util';
 import { writeFile } from 'node:fs/promises';
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
@@ -6,10 +7,10 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createXai } from '@ai-sdk/xai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { execa } from 'execa';
-import { getPrompt } from './prompts/index';
-import { usageToString, statsToString } from './utils';
 import type { CodeReviewOptions, CodeReviewResult, CompletionStats } from '../types';
+import { getUserPrompt, getSystemPrompt } from './prompts/index';
+import { usageToString, statsToString, runCmd } from './utils';
+import { tools } from './tools';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // options
@@ -18,7 +19,9 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     baseUrl,
     model,
     apiKey,
-    diffsCmd = 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock',
+    baseRef = 'HEAD^',
+    headRef = 'HEAD',
+    exclude = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
     outputFile,
     promptFile = 'en',
     print = false,
@@ -27,18 +30,13 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   } = options;
 
   // get diffs
-  const diffs = options.diffs
-    ? options.diffs
-    : await (async () => {
-        const cmdArr = diffsCmd.split(' ').filter((v) => !!v);
-        const { stdout } = await execa(cmdArr[0], cmdArr.slice(1));
-        return stdout;
-      })();
-
-  // get prompt
-  const prompt = await getPrompt(promptFile, {
-    $DIFFS: diffs,
-  });
+  const diffArgs = ['diff', `${baseRef}...${headRef}`, '--', '.', ...exclude.map((v) => `:!${v}`)];
+  const diffsCmd = `git ${diffArgs.join(' ')}`;
+  if (printDebug) {
+    console.log(`[DIFFS_CMD] ${diffsCmd}`);
+    console.log();
+  }
+  const diffs = await runCmd('git', diffArgs);
 
   // init stats
   const stats: CompletionStats = {
@@ -70,20 +68,46 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   // generate review result
   const result = streamText({
     model: providerInst(model),
-    prompt,
+    tools,
+    messages: [
+      {
+        role: 'system',
+        content: getSystemPrompt({
+          diffs,
+          baseRef,
+          headRef,
+        }),
+      },
+      { role: 'user', content: await getUserPrompt(promptFile) },
+    ],
+    maxSteps: 64,
     onError: ({ error }) => {
       throw new Error('code review failed', { cause: error });
     },
   });
 
-  // handle review text stream
+  // print review result stream
+  let stepCnt = 0;
   let textPartCnt = 0;
   let reasoningPartCnt = 0;
   for await (const streamPart of result.fullStream) {
     if (!stats.firstTokenReceivedAt) {
       stats.firstTokenReceivedAt = Date.now();
     }
-    if (streamPart.type === 'text-delta') {
+    if (streamPart.type === 'step-start') {
+      if (print) {
+        console.log(
+          `------------------------------------------------ step ${stepCnt} ------------------------------------------------\n`,
+        );
+      }
+      textPartCnt = 0;
+      reasoningPartCnt = 0;
+      stepCnt++;
+    } else if (streamPart.type === 'step-finish') {
+      if (print) {
+        console.log();
+      }
+    } else if (streamPart.type === 'text-delta') {
       if (print) {
         if (textPartCnt === 0 && reasoningPartCnt > 0 && printReasoning) {
           stdout.write('\n');
@@ -99,15 +123,21 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
         stdout.write(streamPart.textDelta.replaceAll('\n', '\n> '));
       }
       reasoningPartCnt++;
+    } else if (streamPart.type === 'tool-call' && print) {
+      if (textPartCnt > 0 || reasoningPartCnt > 0) {
+        console.log();
+      }
+      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 512, colors: true }));
+    } else if (streamPart.type === 'tool-result' && print) {
+      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 512, colors: true }));
     }
-  }
-  if (print && (textPartCnt > 0 || reasoningPartCnt > 0)) {
-    stdout.write('\n');
   }
 
   // destructure result and update stats
-  const text = await result.text;
-  const reasoning = await result.reasoning;
+  const steps = await result.steps;
+  const lastStep = steps[steps.length - 1];
+  const text = lastStep.text;
+  const reasoning = lastStep.reasoning;
   const usage = await result.usage;
   stats.finishedAt = Date.now();
   stats.timeToFirstToken = stats.firstTokenReceivedAt - stats.startedAt;
@@ -133,6 +163,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     content: text,
     reasoningContent: reasoning,
     debug: {
+      diffsCmd,
       diffs,
       stats,
       usage,

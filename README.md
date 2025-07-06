@@ -22,12 +22,8 @@ npx cr-asst -h
 #### Code Review
 
 ```sh
-COMMAND_TO_GET_CODE_DIFFS | npx cr-asst --provider openai --model gpt-4 --api-key sk-xxx
-# for example:
-git log -p master.. | npx cr-asst --provider openai --model gpt-4 --api-key sk-xxx
+npx cr-asst --head-ref branch-to-review --base-ref main --model gpt-4 --provider openai --api-key sk-xxx
 ```
-
-If `cr-asst` is executed directly, it defaults to get code diffs from the latest git commit, except for `package-lock.json`, `pnpm-lock.yaml` and `yarn.lock`.
 
 Supported AI service providers:
 
@@ -43,9 +39,10 @@ Supported AI service providers:
 import { codeReview } from 'cr-asst';
 
 const { content } = await codeReview({
-  diffs: 'CODE_DIFFS', // or `diffsCmd: 'COMMAND_TO_GET_CODE_DIFFS'`
-  provider: 'openai',
+  headRef: 'branch-to-review'
+  baseRef: 'main',
   model: 'gpt-4',
+  provider: 'openai',
   apiKey: 'sk-xxx',
   // other options...
 });
@@ -100,20 +97,6 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 
 </details>
 
-## Custom Prompt
-
-You can use your custom prompt file by specifying the `--prompt-file` option. The custom prompt file should include `$DIFFS`, which `cr-asst` will replace with the actual code diffs during execution.
-
-Here is a simple example of a custom prompt file:
-
-````markdown
-Please review the following code changes and provide your review comments:
-
-```diff
-$DIFFS
-```
-````
-
 ## Environment Variables (CLI Only)
 
 `cr-asst` reads the following environment variables:
@@ -124,7 +107,9 @@ $DIFFS
 | `CR_BASE_URL`        | Base URL for the AI service API.                                                   |
 | `CR_API_KEY`         | API key for the AI service.                                                        |
 | `CR_MODEL`           | AI model to use for review.                                                        |
-| `CR_DIFFS_CMD`       | Command to get code diffs for review.                                              |
+| `CR_HEAD_REF`        | Head ref to compare with.                                                          |
+| `CR_BASE_REF`        | Base ref to compare against.                                                       |
+| `CR_EXCLUDE`         | Files and directories to exclude from review.                                      |
 | `CR_OUTPUT_FILE`     | Save review result to file.                                                        |
 | `CR_PROMPT_FILE`     | Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").        |
 | `CR_PRINT`           | Print review result to stdout.                                                     |

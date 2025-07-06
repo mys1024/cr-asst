@@ -22,12 +22,8 @@ npx cr-asst -h
 #### 代码评审
 
 ```sh
-获取代码改动的命令 | npx cr-asst --provider openai --model gpt-4 --api-key sk-xxx --prompt-file zh-cn
-# 例如：
-git log -p master.. | npx cr-asst --provider openai --model gpt-4 --api-key sk-xxx --prompt-file zh-cn
+npx cr-asst --head-ref branch-to-review --base-ref main --model gpt-4 --provider openai --api-key sk-xxx
 ```
-
-如果直接执行 `cr-asst`，则默认从最近的 Git 提交获取除了 `package-lock.json`、`pnpm-lock.yaml` 和 `yarn.lock` 之外的代码改动。
 
 支持的 AI 服务提供商：
 
@@ -43,11 +39,11 @@ git log -p master.. | npx cr-asst --provider openai --model gpt-4 --api-key sk-x
 import { codeReview } from 'cr-asst';
 
 const { content } = await codeReview({
-  diffs: '代码改动', // 或 `diffsCmd: '获取代码改动的命令'`
-  provider: 'openai',
+  headRef: 'branch-to-review'
+  baseRef: 'main',
   model: 'gpt-4',
+  provider: 'openai',
   apiKey: 'sk-xxx',
-  promptFile: 'zh-cn',
   // 其他选项...
 });
 ```
@@ -94,20 +90,6 @@ const { content } = await codeReview({
 
 </details>
 
-## 自定义提示词
-
-你可以通过指定 `--prompt-file` 选项来使用自定义的提示词文件。自定义提示词文件应该包含 `$DIFFS`，`cr-asst` 在执行时会将其替换为实际的代码改动。
-
-以下是一个简单的自定义提示词文件的示例：
-
-````markdown
-请评审以下的代码改动并给出评审意见：
-
-```diff
-$DIFFS
-```
-````
-
 ## 环境变量（仅对 CLI 有效）
 
 `cr-asst` 会读取以下环境变量：
@@ -118,7 +100,9 @@ $DIFFS
 | `CR_BASE_URL`        | AI 服务的 API 基础 URL。                                                      |
 | `CR_API_KEY`         | AI 服务的 API 密钥。                                                          |
 | `CR_MODEL`           | 要用于代码评审的 AI 模型。                                                    |
-| `CR_DIFFS_CMD`       | 获取要评审的代码改动的命令。                                                  |
+| `CR_HEAD_REF`        | 要进行比较的头引用。                                                          |
+| `CR_BASE_REF`        | 要进行比较的基引用。                                                          |
+| `CR_EXCLUDE`         | 评审时要排除的目录和文件。                                                    |
 | `CR_OUTPUT_FILE`     | 要保存评审结果的文件。                                                        |
 | `CR_PROMPT_FILE`     | 自定义提示词文件的路径，或内置的提示词（可选值: "en", "zh-cn"）。             |
 | `CR_PRINT`           | 是否在标准输出中显示评审结果。                                                |

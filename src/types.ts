@@ -26,16 +26,23 @@ export type CodeReviewOptions = {
   model: string;
 
   /**
-   * Code diffs to review. If not provided, will use diffsCmd to get diffs.
-   * @default undefined
+   * Head ref to compare with.
+   * @default 'HEAD'
    */
-  diffs?: string;
+  headRef?: string;
 
   /**
-   * Command to get code diffs for review.
-   * @default 'git log --no-prefix -p -n 1 -- . :!package-lock.json :!pnpm-lock.yaml :!yarn.lock'
+   * Base ref to compare against.
+   * @default 'HEAD^'
    */
-  diffsCmd?: string;
+  baseRef?: string;
+
+  /**
+   * Files and directories to exclude from review.
+   * @default
+   * ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock']
+   */
+  exclude?: string[];
 
   /**
    * Save review result to file.
@@ -68,10 +75,8 @@ export type CodeReviewOptions = {
   printDebug?: boolean;
 };
 
-export type PartialCodeReviewOptions = Partial<CodeReviewOptions>;
-
-export type PromptReplacements = {
-  $DIFFS: string;
+export type CodeReviewCliOptions = Omit<CodeReviewOptions, 'exclude'> & {
+  exclude?: string;
 };
 
 export type CompletionUsage = LanguageModelUsage;
@@ -89,6 +94,7 @@ export type CodeReviewResult = {
   content: string;
   reasoningContent?: string;
   debug: {
+    diffsCmd: string;
     diffs: string;
     stats: CompletionStats;
     usage?: CompletionUsage;
