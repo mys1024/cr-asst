@@ -49,7 +49,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     timeToFinish: 0,
   };
 
-  // get review result
+  // init provider
   const providerInst = (
     provider === 'openai'
       ? createOpenAI
@@ -66,12 +66,17 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     apiKey,
     baseURL: baseUrl,
   });
+
+  // generate review result
   const result = streamText({
     model: providerInst(model),
     prompt,
+    onError: ({ error }) => {
+      throw new Error('code review failed', { cause: error });
+    },
   });
 
-  // print review delta and update stats
+  // handle review text stream
   let textPartCnt = 0;
   let reasoningPartCnt = 0;
   for await (const streamPart of result.fullStream) {
@@ -99,17 +104,17 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   if (print && (textPartCnt > 0 || reasoningPartCnt > 0)) {
     stdout.write('\n');
   }
-  stats.finishedAt = Date.now();
-  stats.timeToFirstToken = stats.firstTokenReceivedAt - stats.startedAt;
-  stats.timeToFinish = stats.finishedAt - stats.startedAt;
-  if (await result.usage) {
-    stats.tokensPerSecond = (await result.usage).completionTokens / (stats.timeToFinish / 1000);
-  }
 
-  // extract data from result
+  // destructure result and update stats
   const text = await result.text;
   const reasoning = await result.reasoning;
   const usage = await result.usage;
+  stats.finishedAt = Date.now();
+  stats.timeToFirstToken = stats.firstTokenReceivedAt - stats.startedAt;
+  stats.timeToFinish = stats.finishedAt - stats.startedAt;
+  if (usage) {
+    stats.tokensPerSecond = usage.completionTokens / (stats.timeToFinish / 1000);
+  }
 
   // print debug info
   if (printDebug) {
