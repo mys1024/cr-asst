@@ -40,12 +40,6 @@ export async function cli() {
       (val) => val !== 'false',
       typeof envOptions.print === 'boolean' ? envOptions.print : true,
     )
-    .option(
-      '--print-debug [bool]',
-      'Print debug information to stdout.',
-      (val) => val !== 'false',
-      typeof envOptions.printDebug === 'boolean' ? envOptions.printDebug : false,
-    )
     .version(version, '-v, --version', 'Print version.')
     .helpOption('-h, --help', 'Print help.')
     .parse(argv)

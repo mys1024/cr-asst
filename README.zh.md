@@ -106,7 +106,6 @@ const { content } = await codeReview({
 | `CR_OUTPUT_FILE` | 要保存评审结果的文件。                                                        |
 | `CR_PROMPT_FILE` | 自定义提示词文件的路径，或内置的提示词（可选值: "en", "zh-cn"）。             |
 | `CR_PRINT`       | 是否在标准输出中显示评审结果。                                                |
-| `CR_PRINT_DEBUG` | 是否在标准输出中显示调试信息。                                                |
 
 另外，`cr-asst` CLI 还会使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。
 

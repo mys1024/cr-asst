@@ -25,16 +25,12 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     outputFile,
     promptFile = 'en',
     print = false,
-    printDebug = false,
   } = options;
 
   // get diffs
   const diffArgs = ['diff', `${baseRef}...${headRef}`, '--', '.', ...exclude.map((v) => `:!${v}`)];
   const diffsCmd = `git ${diffArgs.join(' ')}`;
-  if (printDebug) {
-    console.log(`[DIFFS_CMD] ${diffsCmd}`);
-    console.log();
-  }
+  console.log(`[DIFFS_CMD] ${diffsCmd}\n`);
   const diffs = await runCmd('git', diffArgs);
 
   // init stats
@@ -146,11 +142,9 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   }
 
   // print debug info
-  if (printDebug) {
-    console.log();
-    console.log(usageToString(usage));
-    console.log(statsToString(stats));
-  }
+  console.log();
+  console.log(usageToString(usage));
+  console.log(statsToString(stats));
 
   // write output file
   if (outputFile) {

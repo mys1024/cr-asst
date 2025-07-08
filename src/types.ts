@@ -61,12 +61,6 @@ export type CodeReviewOptions = {
    * @default false
    */
   print?: boolean;
-
-  /**
-   * Print debug information to stdout.
-   * @default false
-   */
-  printDebug?: boolean;
 };
 
 export type CodeReviewCliOptions = Omit<CodeReviewOptions, 'exclude'> & {

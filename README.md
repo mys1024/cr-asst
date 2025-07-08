@@ -113,7 +113,6 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 | `CR_OUTPUT_FILE`     | Save review result to file.                                                        |
 | `CR_PROMPT_FILE`     | Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").        |
 | `CR_PRINT`           | Print review result to stdout.                                                     |
-| `CR_PRINT_DEBUG`     | Print debug information to stdout.                                                 |
 
 Moreover, `cr-asst` CLI uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from `.env` file in the current working directory.
 
