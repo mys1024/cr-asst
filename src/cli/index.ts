@@ -41,12 +41,6 @@ export async function cli() {
       typeof envOptions.print === 'boolean' ? envOptions.print : true,
     )
     .option(
-      '--print-reasoning [bool]',
-      'Print reasoning to stdout (only valid for models that support reasoning).',
-      (val) => val !== 'false',
-      typeof envOptions.printReasoning === 'boolean' ? envOptions.printReasoning : false,
-    )
-    .option(
       '--print-debug [bool]',
       'Print debug information to stdout.',
       (val) => val !== 'false',

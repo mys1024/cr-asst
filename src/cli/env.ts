@@ -25,6 +25,5 @@ export const envOptions: Partial<CodeReviewCliOptions> = {
   outputFile: env.CR_OUTPUT_FILE,
   promptFile: env.CR_PROMPT_FILE,
   print: booleanEnvVar(env.CR_PRINT),
-  printReasoning: booleanEnvVar(env.CR_PRINT_REASONING),
   printDebug: booleanEnvVar(env.CR_PRINT_DEBUG),
 };

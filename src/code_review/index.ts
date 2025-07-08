@@ -25,7 +25,6 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     outputFile,
     promptFile = 'en',
     print = false,
-    printReasoning = false,
     printDebug = false,
   } = options;
 
@@ -109,13 +108,13 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       }
     } else if (streamPart.type === 'text-delta') {
       if (print) {
-        if (textPartCnt === 0 && reasoningPartCnt > 0 && printReasoning) {
+        if (textPartCnt === 0 && reasoningPartCnt > 0) {
           stdout.write('\n');
         }
         stdout.write(streamPart.textDelta);
       }
       textPartCnt++;
-    } else if (streamPart.type === 'reasoning' && printReasoning) {
+    } else if (streamPart.type === 'reasoning') {
       if (print) {
         if (reasoningPartCnt === 0) {
           stdout.write('> (Reasoning)\n> \n> ');

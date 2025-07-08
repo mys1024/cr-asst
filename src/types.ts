@@ -63,12 +63,6 @@ export type CodeReviewOptions = {
   print?: boolean;
 
   /**
-   * Print reasoning to stdout (only valid for models that support reasoning).
-   * @default false
-   */
-  printReasoning?: boolean;
-
-  /**
    * Print debug information to stdout.
    * @default false
    */

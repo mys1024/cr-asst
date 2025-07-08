@@ -94,20 +94,19 @@ const { content } = await codeReview({
 
 `cr-asst` 会读取以下环境变量：
 
-| 环境变量             | 描述                                                                          |
-| -------------------- | ----------------------------------------------------------------------------- |
-| `CR_PROVIDER`        | AI 服务提供商（可选值: "openai", "deepseek", "xai", "anthropic", "google"）。 |
-| `CR_BASE_URL`        | AI 服务的 API 基础 URL。                                                      |
-| `CR_API_KEY`         | AI 服务的 API 密钥。                                                          |
-| `CR_MODEL`           | 要用于代码评审的 AI 模型。                                                    |
-| `CR_HEAD_REF`        | 要进行比较的头引用。                                                          |
-| `CR_BASE_REF`        | 要进行比较的基引用。                                                          |
-| `CR_EXCLUDE`         | 评审时要排除的目录和文件。                                                    |
-| `CR_OUTPUT_FILE`     | 要保存评审结果的文件。                                                        |
-| `CR_PROMPT_FILE`     | 自定义提示词文件的路径，或内置的提示词（可选值: "en", "zh-cn"）。             |
-| `CR_PRINT`           | 是否在标准输出中显示评审结果。                                                |
-| `CR_PRINT_REASONING` | 是否在标准输出中显示推理内容（仅对支持推理的模型有效）。                      |
-| `CR_PRINT_DEBUG`     | 是否在标准输出中显示调试信息。                                                |
+| 环境变量         | 描述                                                                          |
+| ---------------- | ----------------------------------------------------------------------------- |
+| `CR_PROVIDER`    | AI 服务提供商（可选值: "openai", "deepseek", "xai", "anthropic", "google"）。 |
+| `CR_BASE_URL`    | AI 服务的 API 基础 URL。                                                      |
+| `CR_API_KEY`     | AI 服务的 API 密钥。                                                          |
+| `CR_MODEL`       | 要用于代码评审的 AI 模型。                                                    |
+| `CR_HEAD_REF`    | 要进行比较的头引用。                                                          |
+| `CR_BASE_REF`    | 要进行比较的基引用。                                                          |
+| `CR_EXCLUDE`     | 评审时要排除的目录和文件。                                                    |
+| `CR_OUTPUT_FILE` | 要保存评审结果的文件。                                                        |
+| `CR_PROMPT_FILE` | 自定义提示词文件的路径，或内置的提示词（可选值: "en", "zh-cn"）。             |
+| `CR_PRINT`       | 是否在标准输出中显示评审结果。                                                |
+| `CR_PRINT_DEBUG` | 是否在标准输出中显示调试信息。                                                |
 
 另外，`cr-asst` CLI 还会使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。
 
