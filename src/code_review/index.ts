@@ -122,9 +122,9 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       if (textPartCnt > 0 || reasoningPartCnt > 0) {
         console.log();
       }
-      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 512, colors: true }));
+      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 256, colors: true }));
     } else if (streamPart.type === 'tool-result' && print) {
-      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 512, colors: true }));
+      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 256, colors: true }));
     }
   }
 
