@@ -45,7 +45,7 @@ export type CodeReviewOptions = {
   exclude?: string[];
 
   /**
-   * Save review result to file.
+   * Path to a file to save review result.
    * @default undefined
    */
   outputFile?: string;

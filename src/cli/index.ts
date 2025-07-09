@@ -24,13 +24,17 @@ export async function cli() {
     .option('-H, --head-ref <ref>', 'Head ref to compare with.', envOptions.headRef || 'HEAD')
     .option('-b, --base-ref <ref>', 'Base ref to compare against.', envOptions.baseRef || 'HEAD^')
     .option(
-      '-e, --exclude <files_or_dirs>',
+      '-e, --exclude <files_and_dirs>',
       'Files and directories to exclude from review, separated by commas.',
       envOptions.exclude || 'package-lock.json,pnpm-lock.yaml,yarn.lock',
     )
-    .option('-o, --output-file <file>', 'Save review result to file.', envOptions.outputFile)
     .option(
-      '-p, --prompt-file <fileOrBuiltinPrompt>',
+      '-o, --output-file <file>',
+      'Path to a file to save review result.',
+      envOptions.outputFile,
+    )
+    .option(
+      '-p, --prompt-file <file_or_builtin_prompt>',
       'Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").',
       envOptions.promptFile || 'en',
     )

@@ -109,8 +109,8 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 | `CR_MODEL`           | AI model to use for review.                                                        |
 | `CR_HEAD_REF`        | Head ref to compare with.                                                          |
 | `CR_BASE_REF`        | Base ref to compare against.                                                       |
-| `CR_EXCLUDE`         | Files and directories to exclude from review.                                      |
-| `CR_OUTPUT_FILE`     | Save review result to file.                                                        |
+| `CR_EXCLUDE`         | Files and directories to exclude from review, separated by commas.                 |
+| `CR_OUTPUT_FILE`     | Path to a file to save review result.                                              |
 | `CR_PROMPT_FILE`     | Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").        |
 | `CR_PRINT`           | Print review result to stdout.                                                     |
 
