@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { booleanEnvVar, floatEnvVar, envOptions } from '../env';
+import { booleanEnvVar, numberEnvVar, envOptions } from '../env';
 
 describe('booleanEnvVar()', () => {
   it('case 1', async () => {
@@ -19,21 +19,21 @@ describe('booleanEnvVar()', () => {
   });
 });
 
-describe('floatEnvVar()', () => {
-  it('case 1', async () => {
-    expect(floatEnvVar('1')).toBe(1);
+describe('numberEnvVar()', () => {
+  it('int', async () => {
+    expect(numberEnvVar('1', 'int')).toBe(1);
+    expect(numberEnvVar('1.2', 'int')).toBe(1);
+    expect(numberEnvVar('445.85', 'int')).toBe(445);
   });
-  it('case 2', async () => {
-    expect(floatEnvVar('2.56')).toBe(2.56);
+  it('float', async () => {
+    expect(numberEnvVar('2.56', 'float')).toBe(2.56);
+    expect(numberEnvVar('3.6', 'float')).toBe(3.6);
+    expect(numberEnvVar('233.65', 'float')).toBe(233.65);
   });
-  it('case 3', async () => {
-    expect(floatEnvVar('foo')).toBe(undefined);
-  });
-  it('case 4', async () => {
-    expect(floatEnvVar('')).toBe(undefined);
-  });
-  it('case 5', async () => {
-    expect(floatEnvVar(undefined)).toBe(undefined);
+  it('undefined', async () => {
+    expect(numberEnvVar('', 'int')).toBe(undefined);
+    expect(numberEnvVar(undefined, 'int')).toBe(undefined);
+    expect(numberEnvVar('foo', 'int')).toBe(undefined);
   });
 });
 

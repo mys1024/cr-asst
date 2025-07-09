@@ -57,7 +57,25 @@ export type CodeReviewOptions = {
   promptFile?: string;
 
   /**
-   * Print review result to stdout.
+   * Path to a custom system prompt file.
+   * @default undefined
+   */
+  systemPromptFile?: string;
+
+  /**
+   * Whether to disable tools.
+   * @default false
+   */
+  disableTools?: boolean;
+
+  /**
+   * Maximum number of AI model calls.
+   * @default 32
+   */
+  maxSteps?: number;
+
+  /**
+   * Whether to print review result to stdout.
    * @default false
    */
   print?: boolean;

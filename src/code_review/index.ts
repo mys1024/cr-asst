@@ -24,6 +24,9 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     exclude = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
     outputFile,
     promptFile = 'en',
+    systemPromptFile,
+    disableTools = false,
+    maxSteps = 32,
     print = false,
   } = options;
 
@@ -65,11 +68,13 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   // generate review result
   const result = streamText({
     model: providerInst(model),
-    tools,
+    tools: disableTools ? undefined : tools,
     messages: [
       {
         role: 'system',
-        content: getSystemPrompt({
+        content: await getSystemPrompt({
+          systemPromptFile,
+          disableTools,
           diffs,
           baseRef,
           headRef,
@@ -77,7 +82,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       },
       { role: 'user', content: await getUserPrompt(promptFile) },
     ],
-    maxSteps: 64,
+    maxSteps: disableTools ? 1 : maxSteps,
     onError: ({ error }) => {
       throw new Error('code review failed', { cause: error });
     },

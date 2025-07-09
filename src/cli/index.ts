@@ -39,8 +39,25 @@ export async function cli() {
       envOptions.promptFile || 'en',
     )
     .option(
+      '--system-prompt-file <file>',
+      'Path to a custom system prompt file.',
+      envOptions.systemPromptFile,
+    )
+    .option(
+      '--disable-tools [bool]',
+      'Whether to disable tools.',
+      (val) => val !== 'false',
+      typeof envOptions.disableTools === 'boolean' ? envOptions.disableTools : false,
+    )
+    .option(
+      '--max-steps <int>',
+      'Maximum number of AI model calls.',
+      (val) => parseInt(val),
+      typeof envOptions.maxSteps === 'number' ? envOptions.maxSteps : 32,
+    )
+    .option(
       '--print [bool]',
-      'Print review result to stdout.',
+      'Whether to print review result to stdout.',
       (val) => val !== 'false',
       typeof envOptions.print === 'boolean' ? envOptions.print : true,
     )
