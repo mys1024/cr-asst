@@ -1,3 +1,3 @@
 export { codeReview } from './code_review';
 
-export type { CodeReviewOptions, CodeReviewResult } from './types';
+export type { CodeReviewProvider, CodeReviewOptions, CodeReviewResult } from './types';
