@@ -1,6 +1,7 @@
 import { stdout } from 'node:process';
 import { inspect } from 'node:util';
 import { writeFile } from 'node:fs/promises';
+import { fetch, ProxyAgent } from 'undici';
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
@@ -9,7 +10,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import type { CodeReviewOptions, CodeReviewResult, CompletionStats } from '../types';
 import { getUserPrompt, getSystemPrompt } from './prompts/index';
-import { usageToString, statsToString, runCmd } from './utils';
+import { usageToString, statsToString, runCmd, getHttpProxyUrl } from './utils';
 import { tools } from './tools';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
@@ -48,6 +49,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   };
 
   // init provider
+  const httpProxyUrl = getHttpProxyUrl();
   const providerInst = (
     provider === 'openai'
       ? createOpenAI
@@ -63,6 +65,11 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   )({
     apiKey,
     baseURL: baseUrl,
+    fetch: (req, options) =>
+      fetch(req as string, {
+        ...options,
+        dispatcher: httpProxyUrl ? new ProxyAgent(httpProxyUrl) : undefined,
+      }),
   });
 
   // generate review result

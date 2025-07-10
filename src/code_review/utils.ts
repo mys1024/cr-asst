@@ -1,3 +1,4 @@
+import { env } from 'node:process';
 import { execa, ExecaError } from 'execa';
 import type { CompletionUsage, CompletionStats } from '../types';
 
@@ -54,4 +55,8 @@ export async function runCmd(file: string, args: string[]) {
       throw new Error(String(err));
     }
   }
+}
+
+export function getHttpProxyUrl() {
+  return env.https_proxy || env.HTTPS_PROXY || env.http_proxy || env.HTTP_PROXY;
 }
