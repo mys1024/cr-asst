@@ -102,12 +102,16 @@ const { content } = await codeReview({
 | `CR_MODEL`              | 要用于代码评审的 AI 模型。                                                    |
 | `CR_HEAD_REF`           | 要进行比较的头引用。                                                          |
 | `CR_BASE_REF`           | 要进行比较的基引用。                                                          |
+| `CR_INCLUDE`            | 要包含的目录和文件，逗号分隔。                                                |
 | `CR_EXCLUDE`            | 要排除的目录和文件，逗号分隔。                                                |
 | `CR_OUTPUT_FILE`        | 要保存评审结果的文件。                                                        |
 | `CR_PROMPT_FILE`        | 自定义提示词文件的路径，或内置的提示词（可选值: "en", "zh-cn"）。             |
 | `CR_SYSTEM_PROMPT_FILE` | 自定义系统提示词文件的路径。                                                  |
 | `CR_DISABLE_TOOLS`      | 是否禁用工具调用。                                                            |
 | `CR_MAX_STEPS`          | 最大 AI 模型调用次数。                                                        |
+| `CR_TEMPERATURE`        | AI 模型的 temperature 参数。                                                  |
+| `CR_TOP_P`              | AI 模型的 Top P 参数。                                                        |
+| `CR_TOP_K`              | AI 模型的 Top K 参数。                                                        |
 | `CR_PRINT`              | 是否在标准输出中显示评审结果。                                                |
 
 另外，`cr-asst` CLI 还会使用 [`dotenv`](https://www.npmjs.com/package/dotenv) 从当前工作目录的 `.env` 文件加载环境变量。

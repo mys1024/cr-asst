@@ -24,7 +24,12 @@ export async function cli() {
     .option('-H, --head-ref <ref>', 'Head ref to compare with.', envOptions.headRef || 'HEAD')
     .option('-b, --base-ref <ref>', 'Base ref to compare against.', envOptions.baseRef || 'HEAD^')
     .option(
-      '-e, --exclude <files_and_dirs>',
+      '-i, --include <paths>',
+      'Files and directories to include in review, separated by commas.',
+      envOptions.include || '.',
+    )
+    .option(
+      '-e, --exclude <paths>',
       'Files and directories to exclude from review, separated by commas.',
       envOptions.exclude || 'package-lock.json,pnpm-lock.yaml,yarn.lock',
     )
@@ -56,6 +61,24 @@ export async function cli() {
       typeof envOptions.maxSteps === 'number' ? envOptions.maxSteps : 32,
     )
     .option(
+      '--temperature <float>',
+      'Temperature for the AI model.',
+      (val) => parseInt(val),
+      typeof envOptions.temperature === 'number' ? envOptions.temperature : undefined,
+    )
+    .option(
+      '--top-p <float>',
+      'Top P for the AI model.',
+      (val) => parseInt(val),
+      typeof envOptions.topP === 'number' ? envOptions.topP : undefined,
+    )
+    .option(
+      '--top-k <int>',
+      'Top K for the AI model.',
+      (val) => parseInt(val),
+      typeof envOptions.topK === 'number' ? envOptions.topK : undefined,
+    )
+    .option(
       '--print [bool]',
       'Whether to print review result to stdout.',
       (val) => val !== 'false',
@@ -67,9 +90,10 @@ export async function cli() {
     .opts<CodeReviewCliOptions>();
 
   // convert cli options to code review options
-  const { exclude, ...cliOptionsRest } = cliOptions;
+  const { include, exclude, ...cliOptionsRest } = cliOptions;
   const options: CodeReviewOptions = {
     ...cliOptionsRest,
+    include: include?.split(','),
     exclude: exclude?.split(','),
   };
 

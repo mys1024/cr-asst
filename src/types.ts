@@ -38,6 +38,13 @@ export type CodeReviewOptions = {
   baseRef?: string;
 
   /**
+   * Files and directories to include in review.
+   * @default
+   * ['.']
+   */
+  include?: string[];
+
+  /**
    * Files and directories to exclude from review.
    * @default
    * ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock']
@@ -75,13 +82,32 @@ export type CodeReviewOptions = {
   maxSteps?: number;
 
   /**
+   * Temperature for the AI model.
+   * @default undefined
+   */
+  temperature?: number;
+
+  /**
+   * Top P for the AI model.
+   * @default undefined
+   */
+  topP?: number;
+
+  /**
+   * Top K for the AI model.
+   * @default undefined
+   */
+  topK?: number;
+
+  /**
    * Whether to print review result to stdout.
    * @default false
    */
   print?: boolean;
 };
 
-export type CodeReviewCliOptions = Omit<CodeReviewOptions, 'exclude'> & {
+export type CodeReviewCliOptions = Omit<CodeReviewOptions, 'include' | 'exclude'> & {
+  include?: string;
   exclude?: string;
 };
 

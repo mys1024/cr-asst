@@ -22,17 +22,28 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     apiKey,
     baseRef = 'HEAD^',
     headRef = 'HEAD',
+    include = ['.'],
     exclude = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'],
     outputFile,
     promptFile = 'en',
     systemPromptFile,
     disableTools = false,
     maxSteps = 32,
+    temperature,
+    topP,
+    topK,
     print = false,
   } = options;
 
   // get diffs
-  const diffArgs = ['diff', `${baseRef}...${headRef}`, '--', '.', ...exclude.map((v) => `:!${v}`)];
+  const diffArgs = [
+    'diff',
+    '--unified=8',
+    `${baseRef}...${headRef}`,
+    '--',
+    ...include,
+    ...exclude.map((v) => `:!${v}`),
+  ];
   const diffsCmd = `git ${diffArgs.join(' ')}`;
   if (print) {
     console.log(`[DIFFS_CMD] ${diffsCmd}\n`);
@@ -90,6 +101,9 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       { role: 'user', content: await getUserPrompt(promptFile) },
     ],
     maxSteps: disableTools ? 1 : maxSteps,
+    temperature,
+    topP,
+    topK,
     onError: ({ error }) => {
       throw new Error('code review failed', { cause: error });
     },
