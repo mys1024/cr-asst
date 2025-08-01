@@ -3,13 +3,13 @@ import { usageToString, statsToString } from '../utils';
 
 describe('usageToString()', () => {
   it('case 1', async () => {
-    const promptTokens = 156;
-    const completionTokens = 3245;
     expect(
       usageToString({
-        promptTokens,
-        completionTokens,
-        totalTokens: promptTokens + completionTokens,
+        inputTokens: 321,
+        cachedInputTokens: 123,
+        outputTokens: 3245,
+        reasoningTokens: 2345,
+        totalTokens: 7000,
       }),
     ).toMatchSnapshot();
   });

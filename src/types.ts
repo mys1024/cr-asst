@@ -104,11 +104,37 @@ export type CodeReviewOptions = {
    * @default false
    */
   print?: boolean;
+
+  /**
+   * Whether to enable approval check.
+   * @experimental
+   */
+  approvalCheck?:
+    | boolean
+    | {
+        prompt?: string;
+        promptFile?: string;
+      };
 };
 
-export type CodeReviewCliOptions = Omit<CodeReviewOptions, 'include' | 'exclude'> & {
+export type CodeReviewCliOptions = Omit<
+  CodeReviewOptions,
+  'include' | 'exclude' | 'approvalCheck'
+> & {
   include?: string;
   exclude?: string;
+  /**
+   * @experimental
+   */
+  approvalCheck?: boolean;
+  /**
+   * @experimental
+   */
+  approvalCheckPrompt?: string;
+  /**
+   * @experimental
+   */
+  approvalCheckPromptFile?: string;
 };
 
 export type CompletionUsage = LanguageModelUsage;
@@ -124,11 +150,24 @@ export type CompletionStats = {
 
 export type CodeReviewResult = {
   content: string;
-  reasoningContent?: string;
+  reasoningContent: string;
   debug: {
     diffsCmd: string;
     diffs: string;
     stats: CompletionStats;
-    usage?: CompletionUsage;
+    usage: CompletionUsage;
+  };
+  /**
+   * The result of approval check.
+   * @experimental
+   */
+  approvalCheck?: {
+    content: string;
+    reasoningContent: string;
+    approved: boolean;
+    debug: {
+      stats: CompletionStats;
+      usage: CompletionUsage;
+    };
   };
 };

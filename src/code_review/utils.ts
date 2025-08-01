@@ -6,9 +6,11 @@ export function usageToString(usage?: CompletionUsage) {
   return [
     '[USAGE]',
     [
-      `promptTokens: ${usage?.promptTokens ? usage.promptTokens : 'N/A'}`,
-      `completionTokens: ${usage?.completionTokens ? usage.completionTokens : 'N/A'}`,
-      `totalTokens: ${usage?.totalTokens ? usage.totalTokens : 'N/A'}`,
+      `inputTokens: ${usage?.inputTokens ? usage.inputTokens : 'null'}`,
+      `cachedInputTokens: ${usage?.cachedInputTokens ? usage.cachedInputTokens : 'null'}`,
+      `outputTokens: ${usage?.outputTokens ? usage.outputTokens : 'null'}`,
+      `reasoningTokens: ${usage?.reasoningTokens ? usage.reasoningTokens : 'null'}`,
+      `totalTokens: ${usage?.totalTokens ? usage.totalTokens : 'null'}`,
     ].join(', '),
   ].join(' ');
 }

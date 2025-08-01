@@ -35,4 +35,7 @@ export const envOptions: Partial<CodeReviewCliOptions> = {
   topP: numberEnvVar(env.CR_TOP_P, 'float'),
   topK: numberEnvVar(env.CR_TOP_K, 'int'),
   print: booleanEnvVar(env.CR_PRINT),
+  approvalCheck: booleanEnvVar(env.CR_APPROVAL_CHECK),
+  approvalCheckPrompt: env.CR_APPROVAL_CHECK_PROMPT,
+  approvalCheckPromptFile: env.CR_APPROVAL_CHECK_PROMPT_FILE,
 };

@@ -1,25 +1,60 @@
-import { stdout } from 'node:process';
-import { inspect } from 'node:util';
 import { writeFile } from 'node:fs/promises';
-import { fetch, ProxyAgent } from 'undici';
-import { streamText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createDeepSeek } from '@ai-sdk/deepseek';
-import { createXai } from '@ai-sdk/xai';
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import type { CodeReviewOptions, CodeReviewResult, CompletionStats } from '../types';
-import { getUserPrompt, getSystemPrompt } from './prompts/index';
-import { usageToString, statsToString, runCmd, getHttpProxyUrl } from './utils';
-import { tools } from './tools';
+import { stepCountIs, type LanguageModel, type ModelMessage } from 'ai';
+import type { CodeReviewOptions, CodeReviewResult } from '../types';
+import { getUserPrompt, getSystemPrompt, getApprovalCheckPrompt } from './prompts/index';
+import { runCmd } from './utils';
+import { reviewReportTools, createApprovalCheckTools } from './tools';
+import { initModel, callModel } from './model';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
+  // init model
+  const model = initModel(options);
+
+  // generate review report
+  const reviewReport = await generateReviewReport({
+    ...options,
+    model,
+  });
+
+  // generate approval check
+  const approvalCheck = await generateApprovalCheck({
+    ...options,
+    model,
+    prevMessages: reviewReport.messages,
+  });
+
+  // return
+  return {
+    content: reviewReport.text,
+    reasoningContent: reviewReport.reasoning,
+    debug: {
+      diffsCmd: reviewReport.diffsCmd,
+      diffs: reviewReport.diffs,
+      stats: reviewReport.stats,
+      usage: reviewReport.usage,
+    },
+    approvalCheck: approvalCheck
+      ? {
+          content: approvalCheck.text,
+          reasoningContent: approvalCheck.reasoning,
+          approved: approvalCheck.approved,
+          debug: {
+            stats: approvalCheck.stats,
+            usage: approvalCheck.usage,
+          },
+        }
+      : undefined,
+  };
+}
+
+async function generateReviewReport(
+  options: Omit<CodeReviewOptions, 'model'> & {
+    model: LanguageModel;
+  },
+) {
   // options
   const {
-    provider = 'openai',
-    baseUrl,
     model,
-    apiKey,
     baseRef = 'HEAD^',
     headRef = 'HEAD',
     include = ['.'],
@@ -34,6 +69,13 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     topK,
     print = false,
   } = options;
+
+  // print title
+  if (print) {
+    console.log(
+      `================================================ Review Report ================================================\n`,
+    );
+  }
 
   // get diffs
   const diffArgs = [
@@ -50,43 +92,11 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   }
   const diffs = await runCmd('git', diffArgs);
 
-  // init stats
-  const stats: CompletionStats = {
-    startedAt: Date.now(),
-    firstTokenReceivedAt: 0,
-    finishedAt: 0,
-    timeToFirstToken: 0,
-    timeToFinish: 0,
-  };
-
-  // init provider
-  const httpProxyUrl = getHttpProxyUrl();
-  const providerInst = (
-    provider === 'openai'
-      ? createOpenAI
-      : provider === 'deepseek'
-        ? createDeepSeek
-        : provider === 'xai'
-          ? createXai
-          : provider === 'anthropic'
-            ? createAnthropic
-            : provider === 'google'
-              ? createGoogleGenerativeAI
-              : createOpenAI
-  )({
-    apiKey,
-    baseURL: baseUrl,
-    fetch: (req, options) =>
-      fetch(req as string, {
-        ...options,
-        dispatcher: httpProxyUrl ? new ProxyAgent(httpProxyUrl) : undefined,
-      }),
-  });
-
-  // generate review result
-  const result = streamText({
-    model: providerInst(model),
-    tools: disableTools ? undefined : tools,
+  // generate review report
+  const result = await callModel({
+    model,
+    tools: disableTools ? undefined : reviewReportTools,
+    stopWhen: stepCountIs(maxSteps),
     messages: [
       {
         role: 'system',
@@ -100,96 +110,75 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       },
       { role: 'user', content: await getUserPrompt(promptFile) },
     ],
-    maxSteps: disableTools ? 1 : maxSteps,
+    print,
     temperature,
     topP,
     topK,
-    onError: ({ error }) => {
-      throw new Error('code review failed', { cause: error });
-    },
   });
-
-  // print review result stream
-  let stepCnt = 0;
-  let textPartCnt = 0;
-  let reasoningPartCnt = 0;
-  for await (const streamPart of result.fullStream) {
-    if (!stats.firstTokenReceivedAt) {
-      stats.firstTokenReceivedAt = Date.now();
-    }
-    if (streamPart.type === 'step-start') {
-      if (print) {
-        console.log(
-          `------------------------------------------------ step ${stepCnt} ------------------------------------------------\n`,
-        );
-      }
-      textPartCnt = 0;
-      reasoningPartCnt = 0;
-      stepCnt++;
-    } else if (streamPart.type === 'step-finish') {
-      if (print) {
-        console.log();
-      }
-    } else if (streamPart.type === 'text-delta') {
-      if (print) {
-        if (textPartCnt === 0 && reasoningPartCnt > 0) {
-          stdout.write('\n');
-        }
-        stdout.write(streamPart.textDelta);
-      }
-      textPartCnt++;
-    } else if (streamPart.type === 'reasoning') {
-      if (print) {
-        if (reasoningPartCnt === 0) {
-          stdout.write('> (Reasoning)\n> \n> ');
-        }
-        stdout.write(streamPart.textDelta.replaceAll('\n', '\n> '));
-      }
-      reasoningPartCnt++;
-    } else if (streamPart.type === 'tool-call' && print) {
-      if (textPartCnt > 0 || reasoningPartCnt > 0) {
-        console.log();
-      }
-      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 256, colors: true }));
-    } else if (streamPart.type === 'tool-result' && print) {
-      console.log(inspect(streamPart, { depth: Infinity, maxStringLength: 256, colors: true }));
-    }
-  }
-
-  // destructure result and update stats
-  const steps = await result.steps;
-  const lastStep = steps[steps.length - 1];
-  const text = lastStep.text;
-  const reasoning = lastStep.reasoning;
-  const usage = await result.usage;
-  stats.finishedAt = Date.now();
-  stats.timeToFirstToken = stats.firstTokenReceivedAt - stats.startedAt;
-  stats.timeToFinish = stats.finishedAt - stats.startedAt;
-  if (usage) {
-    stats.tokensPerSecond = usage.completionTokens / (stats.timeToFinish / 1000);
-  }
-
-  // print debug info
-  if (print) {
-    console.log();
-    console.log(usageToString(usage));
-    console.log(statsToString(stats));
-  }
 
   // write output file
   if (outputFile) {
-    await writeFile(outputFile, text);
+    await writeFile(outputFile, result.text);
   }
 
   // return
   return {
-    content: text,
-    reasoningContent: reasoning,
-    debug: {
-      diffsCmd,
-      diffs,
-      stats,
-      usage,
+    ...result,
+    diffsCmd,
+    diffs,
+  };
+}
+
+async function generateApprovalCheck(
+  options: Omit<CodeReviewOptions, 'model'> & {
+    model: LanguageModel;
+    prevMessages: ModelMessage[];
+  },
+) {
+  // options
+  const { model, prevMessages, approvalCheck, print, temperature, topP, topK } = options;
+
+  // return undefined if approval check is not enabled
+  if (!approvalCheck) {
+    return;
+  }
+
+  // print title
+  if (print) {
+    console.log(
+      `\n================================================ Approval Check ================================================\n`,
+    );
+  }
+
+  // generate approval check
+  let approved = true;
+  const result = await callModel({
+    model,
+    messages: [
+      ...prevMessages,
+      {
+        role: 'user',
+        content: await getApprovalCheckPrompt(approvalCheck),
+      },
+    ],
+    tools: createApprovalCheckTools((result) => {
+      approved = result.approved;
+    }),
+    stopWhen: stepCountIs(2),
+    prepareStep: ({ stepNumber }) => {
+      return {
+        toolChoice: stepNumber === 0 ? 'required' : 'none',
+      };
     },
+    print,
+    temperature,
+    topP,
+    topK,
+  });
+
+  // return
+  return {
+    ...result,
+    approved,
   };
 }

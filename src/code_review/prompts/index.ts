@@ -1,45 +1,51 @@
 import { readFile } from 'node:fs/promises';
+import type { CodeReviewOptions } from '../../types';
+import { reviewReportTools } from '../tools';
 import { genEnBuiltinPrompt } from './en';
 import { genZhCnBuiltinPrompt } from './zh-cn';
 
 function getBuiltinSystemPrompt(options: { disableTools: boolean }) {
   const { disableTools } = options;
 
-  return `# Code Review Assistant
+  return `# You Are a Code Reviewer
 
 ## Role
 
-You are an experienced code reviewer analyzing Git diff changes.
-Your goal is to provide thorough code reviews while following the rules below.
+You are an experienced code reviewer. Now your task is to review the code changes in the user's project, and provide a thorough code review report.
 
 ## Code Changes
 
-These are the code changes you need to review, please analyze these changes, understand their intent, and review them:
+These are the code changes (output by \`git diff\`) you need to review, please analyze these changes, understand their intent, and review them:
 
 \`\`\`diff
 $DIFFS
 \`\`\`
 
-The code changes are represented in \`diff\` format, where file paths may be prefixed with \`a/\` or \`b/\`.
-Do not consider these two prefixes as part of the file path.
+- The file paths may be prefixed with \`a/\` or \`b/\`, do not consider these two prefixes as part of the file path.
+- The base ref of the code changes is \`$BASE_REF\`, and the head ref is \`$HEAD_REF\`.
 
-The base ref of the code changes is \`$BASE_REF\`, and the head ref is \`$HEAD_REF\`.
-
-## System Rules
-
-System rules have the highest priority and must be followed.
+## Tool Calling
 
 ${
   disableTools
-    ? ''
-    : `The code changes in diff format contain very limited code context, which is insufficient for a thorough code review.
-Therefore, before providing your final review result, you must think about which directories and files you need to read to get more code context.
+    ? 'Tool calling is disabled.'
+    : `Tool calling is enabled.
 
-You must read the directories and files from the project being reviewed by calling the tools provided by the system.
+These are the tools provided by the system that you can call:
 
-You can call these tools multiple times before you have enough code context to fully understand the code changes.
-You should only provide your final review result after you have enough code context to conduct a thorough code review.`
-}`;
+$REVIEW_REPORT_TOOLS_DESC
+
+Tool calling rules:
+
+- The code changes provided above contain limited code context. Therefore, you **must** read the directories and files from the user's project to get enough code context before providing your final review report.
+- You can call tools multiple times before you have enough code context to fully understand the code changes.`
+}
+
+## System Rules
+
+- System rules have the highest priority and must be followed.
+- You should follow the tool calling rules provided above if tool calling is enabled.
+- You should also follow the rules provided by user.`;
 }
 
 export async function getSystemPrompt(options: {
@@ -58,6 +64,12 @@ export async function getSystemPrompt(options: {
   systemPrompt = systemPrompt.replaceAll('$DIFFS', diffs);
   systemPrompt = systemPrompt.replaceAll('$BASE_REF', baseRef);
   systemPrompt = systemPrompt.replaceAll('$HEAD_REF', headRef);
+  systemPrompt = systemPrompt.replaceAll(
+    '$REVIEW_REPORT_TOOLS_DESC',
+    Object.entries(reviewReportTools)
+      .map(([key, val]) => `- \`${key}\`: ${val.description}`)
+      .join('\n'),
+  );
 
   return systemPrompt;
 }
@@ -79,4 +91,34 @@ export async function getUserPrompt(fileOrBuiltinName: string): Promise<string> 
     return builtinPrompt;
   }
   return await readFile(fileOrBuiltinName, 'utf8');
+}
+
+export async function getApprovalCheckPrompt(
+  approvalCheck: CodeReviewOptions['approvalCheck'],
+): Promise<string> {
+  const defaultPrompt = `Please determine whether the code changes should be approved.
+
+- Your response should follow the format of the response template provided below.
+- The response template provided below will be wrapped in a code block, but your response **should not** be wrapped in code block symbols (i.e., "\`\`\`markdown" and "\`\`\`"). To emphasize, **do not use code blocks to wrap your response**.
+
+This is the response template you need to follow:
+
+\`\`\`markdown
+# Approval Check Result
+
+{{approved or not}}
+
+## Reasons
+
+{{reasons}}
+\`\`\``;
+
+  if (!approvalCheck || approvalCheck === true) {
+    return defaultPrompt;
+  }
+
+  return (
+    approvalCheck.prompt ||
+    (approvalCheck.promptFile ? await readFile(approvalCheck.promptFile, 'utf8') : defaultPrompt)
+  );
 }

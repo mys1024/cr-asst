@@ -34,17 +34,17 @@ export async function cli() {
       envOptions.exclude || 'package-lock.json,pnpm-lock.yaml,yarn.lock',
     )
     .option(
-      '-o, --output-file <file>',
+      '-o, --output-file <path>',
       'Path to a file to save review result.',
       envOptions.outputFile,
     )
     .option(
-      '-p, --prompt-file <file_or_builtin_prompt>',
+      '-p, --prompt-file <path_or_builtin_prompt>',
       'Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").',
       envOptions.promptFile || 'en',
     )
     .option(
-      '--system-prompt-file <file>',
+      '--system-prompt-file <path>',
       'Path to a custom system prompt file.',
       envOptions.systemPromptFile,
     )
@@ -84,17 +84,48 @@ export async function cli() {
       (val) => val !== 'false',
       typeof envOptions.print === 'boolean' ? envOptions.print : true,
     )
+    .option(
+      '--approval-check [bool]',
+      'Experimental. Whether to enable approval check.',
+      (val) => val !== 'false',
+      typeof envOptions.approvalCheck === 'boolean' ? envOptions.approvalCheck : false,
+    )
+    .option(
+      '--approval-check-prompt <prompt>',
+      'Experimental. Custom approval check prompt.',
+      envOptions.approvalCheckPrompt,
+    )
+    .option(
+      '--approval-check-prompt-file <path>',
+      'Experimental. Path to a custom approval check prompt file.',
+      envOptions.approvalCheckPromptFile,
+    )
     .version(version, '-v, --version', 'Print version.')
     .helpOption('-h, --help', 'Print help.')
     .parse(argv)
     .opts<CodeReviewCliOptions>();
 
   // convert cli options to code review options
-  const { include, exclude, ...cliOptionsRest } = cliOptions;
+  const {
+    include,
+    exclude,
+    approvalCheck,
+    approvalCheckPrompt,
+    approvalCheckPromptFile,
+    ...cliOptionsRest
+  } = cliOptions;
   const options: CodeReviewOptions = {
     ...cliOptionsRest,
     include: include?.split(','),
     exclude: exclude?.split(','),
+    approvalCheck: !approvalCheck
+      ? false
+      : approvalCheckPrompt || approvalCheckPromptFile
+        ? {
+            prompt: approvalCheckPrompt,
+            promptFile: approvalCheckPromptFile,
+          }
+        : true,
   };
 
   // run code review
