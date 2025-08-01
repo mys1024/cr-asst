@@ -55,12 +55,6 @@ export async function cli() {
       typeof envOptions.disableTools === 'boolean' ? envOptions.disableTools : false,
     )
     .option(
-      '--max-steps <int>',
-      'Maximum number of AI model calls.',
-      (val) => parseInt(val),
-      typeof envOptions.maxSteps === 'number' ? envOptions.maxSteps : 32,
-    )
-    .option(
       '--temperature <float>',
       'Temperature for the AI model.',
       (val) => parseInt(val),

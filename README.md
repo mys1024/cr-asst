@@ -115,7 +115,6 @@ See [`CodeReviewOptions`](./src/types.ts) for more details.
 | `CR_PROMPT_FILE`        | Path to a custom prompt file, or a builtin prompt (options: "en", "zh-cn").        |
 | `CR_SYSTEM_PROMPT_FILE` | Path to a custom system prompt file.                                               |
 | `CR_DISABLE_TOOLS`      | Whether to disable tools.                                                          |
-| `CR_MAX_STEPS`          | Maximum number of AI model calls.                                                  |
 | `CR_TEMPERATURE`        | Temperature for the AI model.                                                      |
 | `CR_TOP_P`              | Top P for the AI model.                                                            |
 | `CR_TOP_K`              | Top K for the AI model.                                                            |

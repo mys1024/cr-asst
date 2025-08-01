@@ -108,7 +108,6 @@ const { content } = await codeReview({
 | `CR_PROMPT_FILE`        | 自定义提示词文件的路径，或内置的提示词（可选值: "en", "zh-cn"）。             |
 | `CR_SYSTEM_PROMPT_FILE` | 自定义系统提示词文件的路径。                                                  |
 | `CR_DISABLE_TOOLS`      | 是否禁用工具调用。                                                            |
-| `CR_MAX_STEPS`          | 最大 AI 模型调用次数。                                                        |
 | `CR_TEMPERATURE`        | AI 模型的 temperature 参数。                                                  |
 | `CR_TOP_P`              | AI 模型的 Top P 参数。                                                        |
 | `CR_TOP_K`              | AI 模型的 Top K 参数。                                                        |

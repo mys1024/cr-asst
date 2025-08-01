@@ -30,7 +30,6 @@ export const envOptions: Partial<CodeReviewCliOptions> = {
   promptFile: env.CR_PROMPT_FILE,
   systemPromptFile: env.CR_SYSTEM_PROMPT_FILE,
   disableTools: booleanEnvVar(env.CR_DISABLE_TOOLS),
-  maxSteps: numberEnvVar(env.CR_MAX_STEPS, 'int'),
   temperature: numberEnvVar(env.CR_TEMPERATURE, 'float'),
   topP: numberEnvVar(env.CR_TOP_P, 'float'),
   topK: numberEnvVar(env.CR_TOP_K, 'int'),

@@ -2,10 +2,10 @@ import { z } from 'zod';
 import { tool, type ToolSet } from 'ai';
 import { toToolResult, runCmd } from './utils';
 
-export const tools = {
+export const reviewReportTools = {
   readProjectDir: tool({
     description: 'Read a directory from the project being reviewed.',
-    parameters: z.object({
+    inputSchema: z.object({
       revision: z
         .string()
         .describe(
@@ -22,7 +22,7 @@ export const tools = {
 
   readProjectFile: tool({
     description: 'Read a file from the project being reviewed.',
-    parameters: z.object({
+    inputSchema: z.object({
       revision: z
         .string()
         .describe(
@@ -33,3 +33,17 @@ export const tools = {
     execute: ({ revision, path }) => toToolResult(runCmd('git', ['show', `${revision}:${path}`])),
   }),
 } satisfies ToolSet;
+
+export function createApprovalCheckTools(
+  onApprovalCheckResult: (result: { approved: boolean }) => void,
+) {
+  return {
+    sendApprovalCheckResult: tool({
+      description: 'Send the approval check result.',
+      inputSchema: z.object({
+        approved: z.boolean().describe('Whether to approve the code changes.'),
+      }),
+      execute: ({ approved }) => toToolResult(() => onApprovalCheckResult({ approved })),
+    }),
+  } satisfies ToolSet;
+}

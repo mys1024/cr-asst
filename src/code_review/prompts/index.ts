@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import type { CodeReviewOptions } from '../../types';
 import { genEnBuiltinPrompt } from './en';
 import { genZhCnBuiltinPrompt } from './zh-cn';
 
@@ -79,4 +80,19 @@ export async function getUserPrompt(fileOrBuiltinName: string): Promise<string> 
     return builtinPrompt;
   }
   return await readFile(fileOrBuiltinName, 'utf8');
+}
+
+export async function getApprovalCheckPrompt(
+  approvalCheck: CodeReviewOptions['approvalCheck'],
+): Promise<string> {
+  const defaultPrompt = `Please determine whether the code changes should be approved.`;
+
+  if (!approvalCheck || approvalCheck === true) {
+    return defaultPrompt;
+  }
+
+  return (
+    approvalCheck.prompt ||
+    (approvalCheck.promptFile ? await readFile(approvalCheck.promptFile, 'utf8') : defaultPrompt)
+  );
 }

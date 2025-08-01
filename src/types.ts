@@ -76,12 +76,6 @@ export type CodeReviewOptions = {
   disableTools?: boolean;
 
   /**
-   * Maximum number of AI model calls.
-   * @default 32
-   */
-  maxSteps?: number;
-
-  /**
    * Temperature for the AI model.
    * @default undefined
    */
@@ -104,6 +98,17 @@ export type CodeReviewOptions = {
    * @default false
    */
   print?: boolean;
+
+  /**
+   * Whether to enable approval check.
+   * @experimental
+   */
+  approvalCheck?:
+    | boolean
+    | {
+        prompt?: string;
+        promptFile?: string;
+      };
 };
 
 export type CodeReviewCliOptions = Omit<CodeReviewOptions, 'include' | 'exclude'> & {
@@ -125,6 +130,14 @@ export type CompletionStats = {
 export type CodeReviewResult = {
   content: string;
   reasoningContent?: string;
+  /**
+   * The result of approval check.
+   * @experimental
+   */
+  approvalCheck?: {
+    message: string;
+    approved: boolean;
+  };
   debug: {
     diffsCmd: string;
     diffs: string;
