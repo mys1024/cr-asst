@@ -37,7 +37,7 @@ $REVIEW_REPORT_TOOLS_DESC
 
 Tool calling rules:
 
-- The code changes provided above contain limited code context. Therefore, you **must** read the directories and files from the user's project to get enough code context before providing your final review report.
+- The code changes provided above contain limited code context. Therefore, you **must** call tools to get enough code context before providing your final review report.
 - You can call tools multiple times before you have enough code context to fully understand the code changes.`
 }
 
