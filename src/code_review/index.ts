@@ -3,7 +3,7 @@ import { stepCountIs, type LanguageModel, type ModelMessage } from 'ai';
 import type { CodeReviewOptions, CodeReviewResult } from '../types';
 import { getUserPrompt, getSystemPrompt, getApprovalCheckPrompt } from './prompts/index';
 import { runCmd } from './utils';
-import { reviewReportTools, createApprovalCheckTools } from './tools';
+import { reviewReportTools } from './tools';
 import { initModel, callModel } from './model';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
@@ -151,7 +151,6 @@ async function generateApprovalCheck(
   }
 
   // generate approval check
-  let approved = true;
   const result = await callModel({
     model,
     messages: [
@@ -161,20 +160,15 @@ async function generateApprovalCheck(
         content: await getApprovalCheckPrompt(approvalCheck),
       },
     ],
-    tools: createApprovalCheckTools((result) => {
-      approved = result.approved;
-    }),
-    stopWhen: stepCountIs(2),
-    prepareStep: ({ stepNumber }) => {
-      return {
-        toolChoice: stepNumber === 0 ? 'required' : 'none',
-      };
-    },
     print,
     temperature,
     topP,
     topK,
   });
+
+  // parse approved flag
+  const firstLine = result.text.split('\n')[0];
+  const approved = firstLine.includes('approved: true');
 
   // return
   return {

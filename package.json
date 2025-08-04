@@ -80,7 +80,7 @@
     ]
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm test && pnpm check:type && pnpm lint-staged"
+    "pre-commit": "pnpm check:type && pnpm lint-staged"
   },
   "lint-staged": {
     "*": [

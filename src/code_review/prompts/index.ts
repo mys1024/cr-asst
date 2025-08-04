@@ -98,20 +98,10 @@ export async function getApprovalCheckPrompt(
 ): Promise<string> {
   const defaultPrompt = `Please determine whether the code changes should be approved.
 
-- Your response should follow the format of the response template provided below.
-- The response template provided below will be wrapped in a code block, but your response **should not** be wrapped in code block symbols (i.e., "\`\`\`markdown" and "\`\`\`"). To emphasize, **do not use code blocks to wrap your response**.
+Rules:
 
-This is the response template you need to follow:
-
-\`\`\`markdown
-# Approval Check Result
-
-{{approved or not}}
-
-## Reasons
-
-{{reasons}}
-\`\`\``;
+- You should determine whether to approve the code changes based on your previous code review.
+- Your response must be **only** \`approved: true\` or \`approved: false\`. No extra text.`;
 
   if (!approvalCheck || approvalCheck === true) {
     return defaultPrompt;

@@ -33,17 +33,3 @@ export const reviewReportTools = {
     execute: ({ ref, path }) => toToolResult(runCmd('git', ['show', `${ref}:${path}`])),
   }),
 } satisfies ToolSet;
-
-export function createApprovalCheckTools(
-  onApprovalCheckResult: (result: { approved: boolean }) => void,
-) {
-  return {
-    sendApprovalCheckResult: tool({
-      description: 'Send the approval check result.',
-      inputSchema: z.object({
-        approved: z.boolean().describe('Whether to approve the code changes.'),
-      }),
-      execute: ({ approved }) => toToolResult(() => onApprovalCheckResult({ approved })),
-    }),
-  } satisfies ToolSet;
-}
