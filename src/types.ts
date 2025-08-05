@@ -1,6 +1,12 @@
 import type { LanguageModelUsage } from 'ai';
 
-export type CodeReviewProvider = 'openai' | 'deepseek' | 'xai' | 'anthropic' | 'google';
+export type CodeReviewProvider =
+  | 'openai'
+  | 'openai-chat' // uses OpenAI chat API
+  | 'deepseek'
+  | 'xai'
+  | 'anthropic'
+  | 'google';
 
 export type CodeReviewOptions = {
   /**

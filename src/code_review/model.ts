@@ -8,7 +8,7 @@ import {
   type ToolChoice,
   type ModelMessage,
 } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+import { createOpenAI, type OpenAIProviderSettings } from '@ai-sdk/openai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createXai } from '@ai-sdk/xai';
 import { createAnthropic } from '@ai-sdk/anthropic';
@@ -18,23 +18,11 @@ import { usageToString, statsToString, getHttpProxyUrl } from './utils';
 
 export function initModel(options: CodeReviewOptions): LanguageModel {
   // options
-  const { provider = 'openai', baseUrl, model: modelName, apiKey } = options;
+  const { provider = 'openai', baseUrl, model: modelId, apiKey } = options;
 
-  // init model
+  // provider options
   const httpProxyUrl = getHttpProxyUrl();
-  const providerInst = (
-    provider === 'openai'
-      ? createOpenAI
-      : provider === 'deepseek'
-        ? createDeepSeek
-        : provider === 'xai'
-          ? createXai
-          : provider === 'anthropic'
-            ? createAnthropic
-            : provider === 'google'
-              ? createGoogleGenerativeAI
-              : createOpenAI
-  )({
+  const providerOptions: OpenAIProviderSettings = {
     apiKey,
     baseURL: baseUrl,
     fetch: (req, options) =>
@@ -42,8 +30,27 @@ export function initModel(options: CodeReviewOptions): LanguageModel {
         ...options,
         dispatcher: httpProxyUrl ? new ProxyAgent(httpProxyUrl) : undefined, // support system proxy
       }),
-  });
-  const model = providerInst(modelName);
+  };
+
+  // init model
+  const model = (() => {
+    switch (provider) {
+      case 'openai':
+        return createOpenAI(providerOptions)(modelId);
+      case 'openai-chat':
+        return createOpenAI(providerOptions).chat(modelId);
+      case 'deepseek':
+        return createDeepSeek(providerOptions)(modelId);
+      case 'xai':
+        return createXai(providerOptions)(modelId);
+      case 'anthropic':
+        return createAnthropic(providerOptions)(modelId);
+      case 'google':
+        return createGoogleGenerativeAI(providerOptions)(modelId);
+      default:
+        return createOpenAI(providerOptions)(modelId);
+    }
+  })();
 
   // return
   return model;
