@@ -143,7 +143,9 @@ export type CodeReviewCliOptions = Omit<
   approvalCheckPromptFile?: string;
 };
 
-export type CompletionUsage = LanguageModelUsage;
+export type CompletionUsage = LanguageModelUsage & {
+  uncachedInputTokens?: number;
+};
 
 export type CompletionStats = {
   startedAt: number;

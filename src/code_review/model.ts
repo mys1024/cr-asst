@@ -13,7 +13,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createXai } from '@ai-sdk/xai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import type { CodeReviewOptions, CompletionStats } from '../types';
+import type { CodeReviewOptions, CompletionStats, CompletionUsage } from '../types';
 import { usageToString, statsToString, getHttpProxyUrl } from './utils';
 
 export function initModel(options: CodeReviewOptions): LanguageModel {
@@ -154,12 +154,19 @@ export async function callModel<TOOLS extends ToolSet>(options: {
     }
   }
 
-  // destructure result and update stats
+  // destructure result
   const steps = await result.steps;
   const lastStep = steps[steps.length - 1];
   const text = lastStep.text;
   const reasoning = lastStep.reasoning;
-  const usage = await result.usage;
+  const usage: CompletionUsage = await result.usage;
+
+  // update usage
+  if (typeof usage.inputTokens === 'number' && typeof usage.cachedInputTokens === 'number') {
+    usage.uncachedInputTokens = usage.inputTokens - usage.cachedInputTokens;
+  }
+
+  // update stats
   stats.finishedAt = Date.now();
   stats.timeToFirstToken = stats.firstTokenReceivedAt - stats.startedAt;
   stats.timeToFinish = stats.finishedAt - stats.startedAt;

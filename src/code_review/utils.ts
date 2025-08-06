@@ -6,11 +6,12 @@ export function usageToString(usage?: CompletionUsage) {
   return [
     '[USAGE]',
     [
-      `inputTokens: ${usage?.inputTokens ? usage.inputTokens : 'null'}`,
-      `cachedInputTokens: ${usage?.cachedInputTokens ? usage.cachedInputTokens : 'null'}`,
-      `outputTokens: ${usage?.outputTokens ? usage.outputTokens : 'null'}`,
-      `reasoningTokens: ${usage?.reasoningTokens ? usage.reasoningTokens : 'null'}`,
-      `totalTokens: ${usage?.totalTokens ? usage.totalTokens : 'null'}`,
+      `inputTokens: ${typeof usage?.inputTokens === 'number' ? usage.inputTokens : 'null'}`,
+      `cachedInputTokens: ${typeof usage?.cachedInputTokens === 'number' ? usage.cachedInputTokens : 'null'}`,
+      `uncachedInputTokens: ${typeof usage?.uncachedInputTokens === 'number' ? usage.uncachedInputTokens : 'null'}`,
+      `outputTokens: ${typeof usage?.outputTokens === 'number' ? usage.outputTokens : 'null'}`,
+      `reasoningTokens: ${typeof usage?.reasoningTokens === 'number' ? usage.reasoningTokens : 'null'}`,
+      `totalTokens: ${typeof usage?.totalTokens === 'number' ? usage.totalTokens : 'null'}`,
     ].join(', '),
   ].join(' ');
 }
