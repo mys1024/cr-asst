@@ -1,5 +1,6 @@
 import { stdout } from 'node:process';
 import { inspect } from 'node:util';
+import chalk from 'chalk';
 import { fetch, ProxyAgent } from 'undici';
 import {
   streamText,
@@ -18,7 +19,16 @@ import { usageToString, statsToString, getHttpProxyUrl } from './utils';
 
 export function initModel(options: CodeReviewOptions): LanguageModel {
   // options
-  const { provider = 'openai', baseUrl, model: modelId, apiKey } = options;
+  const { provider = 'openai', print, baseUrl, model: modelId, apiKey } = options;
+
+  // print info
+  if (print) {
+    console.log(
+      chalk.gray(
+        `[MODEL] provider: ${provider}, model: ${modelId}${baseUrl ? `, baseUrl: ${baseUrl}` : ''}`,
+      ),
+    );
+  }
 
   // provider options
   const httpProxyUrl = getHttpProxyUrl();
@@ -57,6 +67,7 @@ export function initModel(options: CodeReviewOptions): LanguageModel {
 }
 
 export async function callModel<TOOLS extends ToolSet>(options: {
+  title: string;
   model: LanguageModel;
   messages: ModelMessage[];
   print?: boolean;
@@ -70,6 +81,7 @@ export async function callModel<TOOLS extends ToolSet>(options: {
 }) {
   // options
   const {
+    title,
     model,
     messages,
     print,
@@ -81,6 +93,15 @@ export async function callModel<TOOLS extends ToolSet>(options: {
     topP,
     topK,
   } = options;
+
+  // print title
+  if (print) {
+    console.log(
+      chalk.green(
+        `------------------------------------------------ ${title} ------------------------------------------------\n`,
+      ),
+    );
+  }
 
   // call model
   const result = streamText({
@@ -114,9 +135,7 @@ export async function callModel<TOOLS extends ToolSet>(options: {
   for await (const streamPart of result.fullStream) {
     if (streamPart.type === 'start-step') {
       if (print) {
-        console.log(
-          `------------------------------------------------ step ${stepCnt} ------------------------------------------------\n`,
-        );
+        console.log(chalk.blue(`[STEP_${stepCnt}]\n`));
       }
       if (!stats.firstTokenReceivedAt) {
         stats.firstTokenReceivedAt = Date.now();
@@ -177,8 +196,9 @@ export async function callModel<TOOLS extends ToolSet>(options: {
   // print debug info
   if (print) {
     console.log();
-    console.log(usageToString(usage));
-    console.log(statsToString(stats));
+    console.log(chalk.gray(usageToString(usage)));
+    console.log(chalk.gray(statsToString(stats)));
+    console.log();
   }
 
   // get all messages

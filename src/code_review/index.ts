@@ -1,4 +1,5 @@
 import { writeFile } from 'node:fs/promises';
+import chalk from 'chalk';
 import { stepCountIs, type LanguageModel, type ModelMessage } from 'ai';
 import type { CodeReviewOptions, CodeReviewResult } from '../types';
 import {
@@ -84,13 +85,6 @@ async function generateReviewReport(
     print = false,
   } = options;
 
-  // print title
-  if (print) {
-    console.log(
-      `================================================ Review Report ================================================\n`,
-    );
-  }
-
   // get diffs
   const diffArgs = [
     'diff',
@@ -102,12 +96,13 @@ async function generateReviewReport(
   ];
   const diffsCmd = `git ${diffArgs.join(' ')}`;
   if (print) {
-    console.log(`[DIFFS_CMD] ${diffsCmd}\n`);
+    console.log(chalk.gray(`[DIFFS_CMD] ${diffsCmd}\n`));
   }
   const diffs = await runCmd('git', diffArgs);
 
   // generate review report
   const result = await callModel({
+    title: 'Review Report',
     model,
     tools: disableTools ? undefined : reviewReportTools,
     stopWhen: stepCountIs(maxSteps),
@@ -152,15 +147,9 @@ async function generateApprovalCheck(
   // options
   const { model, prevMessages, approvalCheck, print, temperature, topP, topK } = options;
 
-  // print title
-  if (print) {
-    console.log(
-      `\n================================================ Approval Check ================================================\n`,
-    );
-  }
-
   // generate approval check
   const result = await callModel({
+    title: 'Approval Check',
     model,
     messages: [
       ...prevMessages,
@@ -190,15 +179,9 @@ async function generateApprovalCheckStatus(
   // options
   const { model, prevMessages, print, temperature, topP, topK } = options;
 
-  // print title
-  if (print) {
-    console.log(
-      `\n================================================ Approval Check Status ================================================\n`,
-    );
-  }
-
   // generate approval check
   const result = await callModel({
+    title: 'Approval Check Status',
     model,
     messages: [
       ...prevMessages,
