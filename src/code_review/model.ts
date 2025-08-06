@@ -112,14 +112,14 @@ export async function callModel<TOOLS extends ToolSet>(options: {
   let textPartCnt = 0;
   let reasoningPartCnt = 0;
   for await (const streamPart of result.fullStream) {
-    if (!stats.firstTokenReceivedAt) {
-      stats.firstTokenReceivedAt = Date.now();
-    }
     if (streamPart.type === 'start-step') {
       if (print) {
         console.log(
           `------------------------------------------------ step ${stepCnt} ------------------------------------------------\n`,
         );
+      }
+      if (!stats.firstTokenReceivedAt) {
+        stats.firstTokenReceivedAt = Date.now();
       }
       textPartCnt = 0;
       reasoningPartCnt = 0;

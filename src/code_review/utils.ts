@@ -22,7 +22,7 @@ export function statsToString(stats: CompletionStats) {
     [
       `timeToFirstToken: ${(stats.timeToFirstToken / 1000).toFixed(2)}s`,
       `timeToFinish: ${(stats.timeToFinish / 1000).toFixed(2)}s`,
-      `tokensPerSecond: ${stats.tokensPerSecond ? `${stats.tokensPerSecond.toFixed(2)} tokens/s` : 'N/A'}`,
+      `tokensPerSecond: ${typeof stats.tokensPerSecond === 'number' ? `${stats.tokensPerSecond.toFixed(2)} tokens/s` : 'null'}`,
     ].join(', '),
   ].join(' ');
 }

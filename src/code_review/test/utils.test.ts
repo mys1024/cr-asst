@@ -7,6 +7,7 @@ describe('usageToString()', () => {
       usageToString({
         inputTokens: 321,
         cachedInputTokens: 123,
+        uncachedInputTokens: 198,
         outputTokens: 3245,
         reasoningTokens: 2345,
         totalTokens: 7000,
