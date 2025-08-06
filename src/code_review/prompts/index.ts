@@ -96,12 +96,8 @@ export async function getUserPrompt(fileOrBuiltinName: string): Promise<string> 
 export async function getApprovalCheckPrompt(
   approvalCheck: CodeReviewOptions['approvalCheck'],
 ): Promise<string> {
-  const defaultPrompt = `Please determine whether the code changes should be approved.
-
-Rules:
-
-- You should determine whether to approve the code changes based on your previous code review.
-- Your response must be **only** \`approved: true\` or \`approved: false\`. No extra text.`;
+  const defaultPrompt = `Based on the **previous conversation**, please determine whether to approve the code changes.
+Your response should follow the template: \`Approval check: **{{passed or failed}}**\``;
 
   if (!approvalCheck || approvalCheck === true) {
     return defaultPrompt;
@@ -111,4 +107,9 @@ Rules:
     approvalCheck.prompt ||
     (approvalCheck.promptFile ? await readFile(approvalCheck.promptFile, 'utf8') : defaultPrompt)
   );
+}
+
+export async function getApprovalCheckStatusPrompt(): Promise<string> {
+  return `Based on the **previous conversation**, please determine whether to approve the code changes.
+Your response must be **only** \`approved: true\` or \`approved: false\`. No extra text.`;
 }

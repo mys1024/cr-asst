@@ -1,7 +1,12 @@
 import { writeFile } from 'node:fs/promises';
 import { stepCountIs, type LanguageModel, type ModelMessage } from 'ai';
 import type { CodeReviewOptions, CodeReviewResult } from '../types';
-import { getUserPrompt, getSystemPrompt, getApprovalCheckPrompt } from './prompts/index';
+import {
+  getUserPrompt,
+  getSystemPrompt,
+  getApprovalCheckPrompt,
+  getApprovalCheckStatusPrompt,
+} from './prompts/index';
 import { runCmd } from './utils';
 import { reviewReportTools } from './tools';
 import { initModel, callModel } from './model';
@@ -17,11 +22,23 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
   });
 
   // generate approval check
-  const approvalCheck = await generateApprovalCheck({
-    ...options,
-    model,
-    prevMessages: reviewReport.messages,
-  });
+  const approvalCheck = options.approvalCheck
+    ? await generateApprovalCheck({
+        ...options,
+        model,
+        prevMessages: reviewReport.messages,
+      })
+    : undefined;
+
+  // generate approval check status
+  const approvalCheckStatus =
+    options.approvalCheck && approvalCheck
+      ? await generateApprovalCheckStatus({
+          ...options,
+          model,
+          prevMessages: approvalCheck.messages,
+        })
+      : undefined;
 
   // return
   return {
@@ -33,17 +50,14 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       stats: reviewReport.stats,
       usage: reviewReport.usage,
     },
-    approvalCheck: approvalCheck
-      ? {
-          content: approvalCheck.text,
-          reasoningContent: approvalCheck.reasoning,
-          approved: approvalCheck.approved,
-          debug: {
-            stats: approvalCheck.stats,
-            usage: approvalCheck.usage,
-          },
-        }
-      : undefined,
+    approvalCheck:
+      approvalCheck && approvalCheckStatus
+        ? {
+            content: approvalCheck.text,
+            reasoningContent: approvalCheck.reasoning,
+            approved: approvalCheckStatus.approved,
+          }
+        : undefined,
   };
 }
 
@@ -138,11 +152,6 @@ async function generateApprovalCheck(
   // options
   const { model, prevMessages, approvalCheck, print, temperature, topP, topK } = options;
 
-  // return undefined if approval check is not enabled
-  if (!approvalCheck) {
-    return;
-  }
-
   // print title
   if (print) {
     console.log(
@@ -166,9 +175,46 @@ async function generateApprovalCheck(
     topK,
   });
 
+  // return
+  return {
+    ...result,
+  };
+}
+
+async function generateApprovalCheckStatus(
+  options: Omit<CodeReviewOptions, 'model'> & {
+    model: LanguageModel;
+    prevMessages: ModelMessage[];
+  },
+) {
+  // options
+  const { model, prevMessages, print, temperature, topP, topK } = options;
+
+  // print title
+  if (print) {
+    console.log(
+      `\n================================================ Approval Check Status ================================================\n`,
+    );
+  }
+
+  // generate approval check
+  const result = await callModel({
+    model,
+    messages: [
+      ...prevMessages,
+      {
+        role: 'user',
+        content: await getApprovalCheckStatusPrompt(),
+      },
+    ],
+    print,
+    temperature,
+    topP,
+    topK,
+  });
+
   // parse approved flag
-  const firstLine = result.text.split('\n')[0];
-  const approved = firstLine.includes('approved: true');
+  const approved = result.text.includes('true');
 
   // return
   return {

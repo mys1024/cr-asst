@@ -171,9 +171,5 @@ export type CodeReviewResult = {
     content: string;
     reasoningContent: string;
     approved: boolean;
-    debug: {
-      stats: CompletionStats;
-      usage: CompletionUsage;
-    };
   };
 };
