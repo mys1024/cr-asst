@@ -1,4 +1,4 @@
-import type { LanguageModelUsage } from 'ai';
+import type { LanguageModelUsage as _LanguageModelUsage, ModelMessage } from 'ai';
 
 export type CodeReviewProvider =
   | 'openai'
@@ -143,11 +143,11 @@ export type CodeReviewCliOptions = Omit<
   approvalCheckPromptFile?: string;
 };
 
-export type CompletionUsage = LanguageModelUsage & {
+export type LanguageModelCallUsage = _LanguageModelUsage & {
   uncachedInputTokens?: number;
 };
 
-export type CompletionStats = {
+export type LanguageModelCallStats = {
   startedAt: number;
   firstTokenReceivedAt: number;
   finishedAt: number;
@@ -156,22 +156,27 @@ export type CompletionStats = {
   tokensPerSecond?: number;
 };
 
+export type LanguageModelCallResult = {
+  text: string;
+  reasoning: string[];
+  messages: ModelMessage[];
+  stats: LanguageModelCallStats;
+  usage: LanguageModelCallUsage;
+};
+
 export type CodeReviewResult = {
-  content: string;
-  reasoningContent: string;
-  debug: {
+  reviewReport: LanguageModelCallResult & {
     diffsCmd: string;
     diffs: string;
-    stats: CompletionStats;
-    usage: CompletionUsage;
   };
   /**
    * The result of approval check.
    * @experimental
    */
   approvalCheck?: {
-    content: string;
-    reasoningContent: string;
-    approved: boolean;
+    approvalCheckComment: LanguageModelCallResult;
+    approvalCheckStatus: LanguageModelCallResult & {
+      approved: boolean;
+    };
   };
 };

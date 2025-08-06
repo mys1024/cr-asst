@@ -38,7 +38,7 @@ npx cr-asst --head-ref branch-to-review --base-ref main --model gpt-4 --provider
 ```javascript
 import { codeReview } from 'cr-asst';
 
-const { content } = await codeReview({
+const { reviewReport } = await codeReview({
   headRef: 'branch-to-review'
   baseRef: 'main',
   model: 'gpt-4',

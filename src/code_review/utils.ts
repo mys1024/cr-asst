@@ -1,8 +1,8 @@
 import { env } from 'node:process';
 import { execa, ExecaError } from 'execa';
-import type { CompletionUsage, CompletionStats } from '../types';
+import type { LanguageModelCallUsage, LanguageModelCallStats } from '../types';
 
-export function usageToString(usage?: CompletionUsage) {
+export function usageToString(usage?: LanguageModelCallUsage) {
   return [
     '[USAGE]',
     [
@@ -16,7 +16,7 @@ export function usageToString(usage?: CompletionUsage) {
   ].join(' ');
 }
 
-export function statsToString(stats: CompletionStats) {
+export function statsToString(stats: LanguageModelCallStats) {
   return [
     '[STATS]',
     [

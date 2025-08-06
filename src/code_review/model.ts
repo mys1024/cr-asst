@@ -2,19 +2,18 @@ import { stdout } from 'node:process';
 import { inspect } from 'node:util';
 import chalk from 'chalk';
 import { fetch, ProxyAgent } from 'undici';
-import {
-  streamText,
-  type LanguageModel,
-  type ToolSet,
-  type ToolChoice,
-  type ModelMessage,
-} from 'ai';
+import { type StreamTextResult, type LanguageModel, type ToolSet } from 'ai';
 import { createOpenAI, type OpenAIProviderSettings } from '@ai-sdk/openai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createXai } from '@ai-sdk/xai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import type { CodeReviewOptions, CompletionStats, CompletionUsage } from '../types';
+import type {
+  CodeReviewOptions,
+  LanguageModelCallResult,
+  LanguageModelCallStats,
+  LanguageModelCallUsage,
+} from '../types';
 import { usageToString, statsToString, getHttpProxyUrl } from './utils';
 
 export function initModel(options: CodeReviewOptions): LanguageModel {
@@ -66,33 +65,13 @@ export function initModel(options: CodeReviewOptions): LanguageModel {
   return model;
 }
 
-export async function callModel<TOOLS extends ToolSet>(options: {
+export async function handleStreamTextResult<TOOLS extends ToolSet>(options: {
   title: string;
-  model: LanguageModel;
-  messages: ModelMessage[];
   print?: boolean;
-  tools?: TOOLS;
-  toolChoice?: ToolChoice<TOOLS>;
-  prepareStep?: Parameters<typeof streamText<TOOLS>>[0]['prepareStep'];
-  stopWhen?: Parameters<typeof streamText<TOOLS>>[0]['stopWhen'];
-  temperature?: number;
-  topP?: number;
-  topK?: number;
-}) {
+  streamTextResult: StreamTextResult<TOOLS, string>;
+}): Promise<LanguageModelCallResult> {
   // options
-  const {
-    title,
-    model,
-    messages,
-    print,
-    tools,
-    toolChoice,
-    prepareStep,
-    stopWhen,
-    temperature,
-    topP,
-    topK,
-  } = options;
+  const { title, print, streamTextResult } = options;
 
   // print title
   if (print) {
@@ -103,24 +82,8 @@ export async function callModel<TOOLS extends ToolSet>(options: {
     );
   }
 
-  // call model
-  const result = streamText({
-    model,
-    messages,
-    tools,
-    toolChoice,
-    prepareStep,
-    stopWhen,
-    temperature,
-    topP,
-    topK,
-    onError: ({ error }) => {
-      throw new Error('failed to call the model', { cause: error });
-    },
-  });
-
   // init stats
-  const stats: CompletionStats = {
+  const stats: LanguageModelCallStats = {
     startedAt: Date.now(),
     firstTokenReceivedAt: 0,
     finishedAt: 0,
@@ -132,7 +95,7 @@ export async function callModel<TOOLS extends ToolSet>(options: {
   let stepCnt = 0;
   let textPartCnt = 0;
   let reasoningPartCnt = 0;
-  for await (const streamPart of result.fullStream) {
+  for await (const streamPart of streamTextResult.fullStream) {
     if (streamPart.type === 'start-step') {
       if (print) {
         console.log(chalk.blue(`[STEP_${stepCnt}]\n`));
@@ -174,11 +137,11 @@ export async function callModel<TOOLS extends ToolSet>(options: {
   }
 
   // destructure result
-  const steps = await result.steps;
+  const steps = await streamTextResult.steps;
   const lastStep = steps[steps.length - 1];
   const text = lastStep.text;
   const reasoning = lastStep.reasoning;
-  const usage: CompletionUsage = await result.usage;
+  const usage: LanguageModelCallUsage = await streamTextResult.usage;
 
   // update usage
   if (typeof usage.inputTokens === 'number' && typeof usage.cachedInputTokens === 'number') {
@@ -201,14 +164,11 @@ export async function callModel<TOOLS extends ToolSet>(options: {
     console.log();
   }
 
-  // get all messages
-  const allMessages: ModelMessage[] = [...messages, ...(await result.response).messages];
-
   // return
   return {
     text,
-    reasoning: reasoning.map((r) => r.text).join('\n'),
-    messages: allMessages,
+    reasoning: reasoning.map((r) => r.text),
+    messages: (await streamTextResult.response).messages,
     usage,
     stats,
   };

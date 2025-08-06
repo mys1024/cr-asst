@@ -1,16 +1,15 @@
 import { writeFile } from 'node:fs/promises';
 import chalk from 'chalk';
-import { stepCountIs, type LanguageModel, type ModelMessage } from 'ai';
+import { stepCountIs, streamText, type LanguageModel, type ModelMessage } from 'ai';
 import type { CodeReviewOptions, CodeReviewResult } from '../types';
 import {
-  getUserPrompt,
-  getSystemPrompt,
-  getApprovalCheckPrompt,
-  getApprovalCheckStatusPrompt,
+  getReviewReportMessages,
+  getApprovalCheckCommentMessages,
+  getApprovalCheckStatusMessages,
 } from './prompts/index';
 import { runCmd } from './utils';
 import { reviewReportTools } from './tools';
-import { initModel, callModel } from './model';
+import { initModel, handleStreamTextResult } from './model';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // init model
@@ -22,8 +21,8 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     model,
   });
 
-  // generate approval check
-  const approvalCheck = options.approvalCheck
+  // generate approval check comment
+  const approvalCheckComment = options.approvalCheck
     ? await generateApprovalCheck({
         ...options,
         model,
@@ -33,30 +32,22 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
 
   // generate approval check status
   const approvalCheckStatus =
-    options.approvalCheck && approvalCheck
+    options.approvalCheck && approvalCheckComment
       ? await generateApprovalCheckStatus({
           ...options,
           model,
-          prevMessages: approvalCheck.messages,
+          prevMessages: approvalCheckComment.messages,
         })
       : undefined;
 
   // return
   return {
-    content: reviewReport.text,
-    reasoningContent: reviewReport.reasoning,
-    debug: {
-      diffsCmd: reviewReport.diffsCmd,
-      diffs: reviewReport.diffs,
-      stats: reviewReport.stats,
-      usage: reviewReport.usage,
-    },
+    reviewReport,
     approvalCheck:
-      approvalCheck && approvalCheckStatus
+      approvalCheckComment && approvalCheckStatus
         ? {
-            content: approvalCheck.text,
-            reasoningContent: approvalCheck.reasoning,
-            approved: approvalCheckStatus.approved,
+            approvalCheckComment,
+            approvalCheckStatus,
           }
         : undefined,
   };
@@ -100,29 +91,32 @@ async function generateReviewReport(
   }
   const diffs = await runCmd('git', diffArgs);
 
-  // generate review report
-  const result = await callModel({
+  // messages
+  const messages = await getReviewReportMessages({
+    systemPromptFile,
+    promptFile,
+    disableTools,
+    diffs,
+    baseRef,
+    headRef,
+  });
+
+  // call model
+  const result = await handleStreamTextResult({
     title: 'Review Report',
-    model,
-    tools: disableTools ? undefined : reviewReportTools,
-    stopWhen: stepCountIs(maxSteps),
-    messages: [
-      {
-        role: 'system',
-        content: await getSystemPrompt({
-          systemPromptFile,
-          disableTools,
-          diffs,
-          baseRef,
-          headRef,
-        }),
-      },
-      { role: 'user', content: await getUserPrompt(promptFile) },
-    ],
     print,
-    temperature,
-    topP,
-    topK,
+    streamTextResult: streamText({
+      model,
+      messages,
+      tools: disableTools ? undefined : reviewReportTools,
+      stopWhen: stepCountIs(maxSteps),
+      temperature,
+      topP,
+      topK,
+      onError: ({ error }) => {
+        throw new Error('failed to call the model', { cause: error });
+      },
+    }),
   });
 
   // write output file
@@ -133,6 +127,7 @@ async function generateReviewReport(
   // return
   return {
     ...result,
+    messages: [...messages, ...result.messages],
     diffsCmd,
     diffs,
   };
@@ -147,26 +142,32 @@ async function generateApprovalCheck(
   // options
   const { model, prevMessages, approvalCheck, print, temperature, topP, topK } = options;
 
-  // generate approval check
-  const result = await callModel({
-    title: 'Approval Check',
-    model,
-    messages: [
-      ...prevMessages,
-      {
-        role: 'user',
-        content: await getApprovalCheckPrompt(approvalCheck),
-      },
-    ],
+  // messages
+  const messages = await getApprovalCheckCommentMessages({
+    prevMessages,
+    approvalCheck,
+  });
+
+  // call model
+  const result = await handleStreamTextResult({
+    title: 'Approval Check Comment',
     print,
-    temperature,
-    topP,
-    topK,
+    streamTextResult: streamText({
+      model,
+      messages,
+      temperature,
+      topP,
+      topK,
+      onError: ({ error }) => {
+        throw new Error('failed to call the model', { cause: error });
+      },
+    }),
   });
 
   // return
   return {
     ...result,
+    messages: [...messages, ...result.messages],
   };
 }
 
@@ -179,21 +180,23 @@ async function generateApprovalCheckStatus(
   // options
   const { model, prevMessages, print, temperature, topP, topK } = options;
 
-  // generate approval check
-  const result = await callModel({
+  // messages
+  const messages = getApprovalCheckStatusMessages({ prevMessages });
+
+  // call model
+  const result = await handleStreamTextResult({
     title: 'Approval Check Status',
-    model,
-    messages: [
-      ...prevMessages,
-      {
-        role: 'user',
-        content: await getApprovalCheckStatusPrompt(),
-      },
-    ],
     print,
-    temperature,
-    topP,
-    topK,
+    streamTextResult: streamText({
+      model,
+      messages,
+      temperature,
+      topP,
+      topK,
+      onError: ({ error }) => {
+        throw new Error('failed to call the model', { cause: error });
+      },
+    }),
   });
 
   // parse approved flag
@@ -202,6 +205,7 @@ async function generateApprovalCheckStatus(
   // return
   return {
     ...result,
+    messages: [...messages, ...result.messages],
     approved,
   };
 }

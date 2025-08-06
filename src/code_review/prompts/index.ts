@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import type { ModelMessage } from 'ai';
 import type { CodeReviewOptions } from '../../types';
 import { reviewReportTools } from '../tools';
 import { genEnBuiltinPrompt } from './en';
@@ -74,42 +75,94 @@ export async function getSystemPrompt(options: {
   return systemPrompt;
 }
 
-function getBuiltinUserPrompt(name: string): string | undefined {
-  switch (name) {
+export async function getUserPrompt(fileOrBuiltinName: string): Promise<string> {
+  switch (fileOrBuiltinName) {
     case 'en':
       return genEnBuiltinPrompt();
     case 'zh-cn':
       return genZhCnBuiltinPrompt();
     case 'zh-cn-nyan':
       return genZhCnBuiltinPrompt({ nyan: true });
+    default:
+      return await readFile(fileOrBuiltinName, 'utf8');
   }
 }
 
-export async function getUserPrompt(fileOrBuiltinName: string): Promise<string> {
-  const builtinPrompt = getBuiltinUserPrompt(fileOrBuiltinName);
-  if (builtinPrompt) {
-    return builtinPrompt;
-  }
-  return await readFile(fileOrBuiltinName, 'utf8');
+export async function getReviewReportMessages(options: {
+  systemPromptFile?: string;
+  promptFile: string;
+  disableTools: boolean;
+  diffs: string;
+  baseRef: string;
+  headRef: string;
+}): Promise<ModelMessage[]> {
+  const { systemPromptFile, promptFile, disableTools, diffs, baseRef, headRef } = options;
+
+  return [
+    {
+      role: 'system',
+      content: await getSystemPrompt({
+        systemPromptFile,
+        disableTools,
+        diffs,
+        baseRef,
+        headRef,
+      }),
+    },
+    { role: 'user', content: await getUserPrompt(promptFile) },
+  ];
 }
 
-export async function getApprovalCheckPrompt(
-  approvalCheck: CodeReviewOptions['approvalCheck'],
-): Promise<string> {
+export async function getApprovalCheckCommentMessages(options: {
+  prevMessages: ModelMessage[];
+  approvalCheck: CodeReviewOptions['approvalCheck'];
+}): Promise<ModelMessage[]> {
+  const { prevMessages, approvalCheck } = options;
+
   const defaultPrompt = `Based on the **previous conversation**, please determine whether to approve the code changes.
-Your response should follow the template: \`Approval check: **{{passed or failed}}**\``;
 
-  if (!approvalCheck || approvalCheck === true) {
-    return defaultPrompt;
+Your response should follow the template (do not wrap your response with code block symbols):
+
+\`\`\`markdown
+Approval check: **{{Passed or Failed}}**
+
+Reasons: {{reasons}}
+\`\`\``;
+
+  let prompt = defaultPrompt;
+
+  if (typeof approvalCheck === 'object') {
+    if (approvalCheck.prompt) {
+      prompt = approvalCheck.prompt;
+    } else if (approvalCheck.promptFile) {
+      prompt = await readFile(approvalCheck.promptFile, 'utf8');
+    }
   }
 
-  return (
-    approvalCheck.prompt ||
-    (approvalCheck.promptFile ? await readFile(approvalCheck.promptFile, 'utf8') : defaultPrompt)
-  );
+  return [
+    ...prevMessages,
+    {
+      role: 'system',
+      content: 'Now tool calling is **disabled**.',
+    },
+    {
+      role: 'user',
+      content: prompt,
+    },
+  ];
 }
 
-export async function getApprovalCheckStatusPrompt(): Promise<string> {
-  return `Based on the **previous conversation**, please determine whether to approve the code changes.
-Your response must be **only** \`approved: true\` or \`approved: false\`. No extra text.`;
+export function getApprovalCheckStatusMessages(options: {
+  prevMessages: ModelMessage[];
+}): ModelMessage[] {
+  const { prevMessages } = options;
+
+  return [
+    ...prevMessages,
+    {
+      role: 'user',
+      content: `Based on the **previous conversation**, please determine whether to approve the code changes.
+Your response must be **only** \`approved: true\` or \`approved: false\`. No extra text.`,
+    },
+  ];
 }

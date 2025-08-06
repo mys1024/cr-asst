@@ -38,7 +38,7 @@ Supported AI service providers:
 ```javascript
 import { codeReview } from 'cr-asst';
 
-const { content } = await codeReview({
+const { reviewReport } = await codeReview({
   headRef: 'branch-to-review'
   baseRef: 'main',
   model: 'gpt-4',
