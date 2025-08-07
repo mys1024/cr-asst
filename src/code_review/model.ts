@@ -8,6 +8,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createXai } from '@ai-sdk/xai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import 'core-js/es/string/to-well-formed'; // for undici compatibility
 import type {
   CodeReviewOptions,
   LanguageModelCallResult,
