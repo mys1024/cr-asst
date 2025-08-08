@@ -24,7 +24,7 @@ export function initModel(options: CodeReviewOptions): LanguageModel {
   // print info
   if (print) {
     console.log(
-      chalk.gray(
+      chalk.green(
         `[MODEL] provider: ${provider}, model: ${modelId}${baseUrl ? `, baseUrl: ${baseUrl}` : ''}`,
       ),
     );
@@ -77,7 +77,7 @@ export async function handleStreamTextResult<TOOLS extends ToolSet>(options: {
   // print title
   if (print) {
     console.log(
-      chalk.green(
+      chalk.blue.bold(
         `------------------------------------------------ ${title} ------------------------------------------------\n`,
       ),
     );
@@ -160,8 +160,8 @@ export async function handleStreamTextResult<TOOLS extends ToolSet>(options: {
   // print debug info
   if (print) {
     console.log();
-    console.log(chalk.gray(usageToString(usage)));
-    console.log(chalk.gray(statsToString(stats)));
+    console.log(chalk.green(usageToString(usage)));
+    console.log(chalk.green(statsToString(stats)));
     console.log();
   }
 

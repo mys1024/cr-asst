@@ -87,7 +87,7 @@ async function generateReviewReport(
   ];
   const diffsCmd = `git ${diffArgs.join(' ')}`;
   if (print) {
-    console.log(chalk.gray(`[DIFFS_CMD] ${diffsCmd}\n`));
+    console.log(chalk.green(`[DIFFS_CMD] ${diffsCmd}\n`));
   }
   const diffs = await runCmd('git', diffArgs);
 
