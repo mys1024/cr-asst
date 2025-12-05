@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import chalk from 'chalk';
 import { stepCountIs, streamText, type LanguageModel, type ModelMessage } from 'ai';
-import type { CodeReviewOptions, CodeReviewResult } from '../types';
+import type { CodeReviewOptions, CodeReviewResult, ProviderOptions } from '../types';
 import {
   getReviewReportMessages,
   getApprovalCheckCommentMessages,
@@ -13,12 +13,13 @@ import { initModel, handleStreamTextResult } from './model';
 
 export async function codeReview(options: CodeReviewOptions): Promise<CodeReviewResult> {
   // init model
-  const model = initModel(options);
+  const { model, providerOptions } = initModel(options);
 
   // generate review report
   const reviewReport = await generateReviewReport({
     ...options,
     model,
+    providerOptions,
   });
 
   // generate approval check comment
@@ -26,6 +27,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
     ? await generateApprovalCheck({
         ...options,
         model,
+        providerOptions,
         prevMessages: reviewReport.messages,
       })
     : undefined;
@@ -36,6 +38,7 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
       ? await generateApprovalCheckStatus({
           ...options,
           model,
+          providerOptions,
           prevMessages: approvalCheckComment.messages,
         })
       : undefined;
@@ -56,11 +59,13 @@ export async function codeReview(options: CodeReviewOptions): Promise<CodeReview
 async function generateReviewReport(
   options: Omit<CodeReviewOptions, 'model'> & {
     model: LanguageModel;
+    providerOptions?: ProviderOptions;
   },
 ) {
   // options
   const {
     model,
+    providerOptions,
     baseRef = 'HEAD^',
     headRef = 'HEAD',
     include = ['.'],
@@ -107,6 +112,7 @@ async function generateReviewReport(
     print,
     streamTextResult: streamText({
       model,
+      providerOptions,
       messages,
       tools: disableTools ? undefined : reviewReportTools,
       stopWhen: stepCountIs(maxSteps),
@@ -135,12 +141,14 @@ async function generateReviewReport(
 
 async function generateApprovalCheck(
   options: Omit<CodeReviewOptions, 'model'> & {
+    providerOptions?: ProviderOptions;
     model: LanguageModel;
     prevMessages: ModelMessage[];
   },
 ) {
   // options
-  const { model, prevMessages, approvalCheck, print, temperature, topP, topK } = options;
+  const { model, providerOptions, prevMessages, approvalCheck, print, temperature, topP, topK } =
+    options;
 
   // messages
   const messages = await getApprovalCheckCommentMessages({
@@ -154,6 +162,7 @@ async function generateApprovalCheck(
     print,
     streamTextResult: streamText({
       model,
+      providerOptions,
       messages,
       temperature,
       topP,
@@ -174,11 +183,12 @@ async function generateApprovalCheck(
 async function generateApprovalCheckStatus(
   options: Omit<CodeReviewOptions, 'model'> & {
     model: LanguageModel;
+    providerOptions?: ProviderOptions;
     prevMessages: ModelMessage[];
   },
 ) {
   // options
-  const { model, prevMessages, print, temperature, topP, topK } = options;
+  const { model, providerOptions, prevMessages, print, temperature, topP, topK } = options;
 
   // messages
   const messages = getApprovalCheckStatusMessages({ prevMessages });
@@ -189,6 +199,7 @@ async function generateApprovalCheckStatus(
     print,
     streamTextResult: streamText({
       model,
+      providerOptions,
       messages,
       temperature,
       topP,

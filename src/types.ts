@@ -1,4 +1,4 @@
-import type { LanguageModelUsage as _LanguageModelUsage, ModelMessage } from 'ai';
+import type { LanguageModelUsage as _LanguageModelUsage, ModelMessage, JSONValue } from 'ai';
 
 export type CodeReviewProvider =
   | 'openai'
@@ -180,3 +180,5 @@ export type CodeReviewResult = {
     };
   };
 };
+
+export type ProviderOptions = Record<string, Record<string, JSONValue>>;

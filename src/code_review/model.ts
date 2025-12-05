@@ -2,8 +2,12 @@ import { stdout } from 'node:process';
 import { inspect } from 'node:util';
 import chalk from 'chalk';
 import { fetch, ProxyAgent } from 'undici';
-import { type StreamTextResult, type LanguageModel, type ToolSet } from 'ai';
-import { createOpenAI, type OpenAIProviderSettings } from '@ai-sdk/openai';
+import type { StreamTextResult, LanguageModel, ToolSet } from 'ai';
+import {
+  createOpenAI,
+  type OpenAIProviderSettings,
+  type OpenAIResponsesProviderOptions,
+} from '@ai-sdk/openai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createXai } from '@ai-sdk/xai';
 import { createAnthropic } from '@ai-sdk/anthropic';
@@ -14,10 +18,14 @@ import type {
   LanguageModelCallResult,
   LanguageModelCallStats,
   LanguageModelCallUsage,
+  ProviderOptions,
 } from '../types';
 import { usageToString, statsToString, getHttpProxyUrl } from './utils';
 
-export function initModel(options: CodeReviewOptions): LanguageModel {
+export function initModel(options: CodeReviewOptions): {
+  model: LanguageModel;
+  providerOptions?: ProviderOptions;
+} {
   // options
   const { provider = 'openai', print, baseUrl, model: modelId, apiKey } = options;
 
@@ -32,7 +40,7 @@ export function initModel(options: CodeReviewOptions): LanguageModel {
 
   // provider options
   const httpProxyUrl = getHttpProxyUrl();
-  const providerOptions: OpenAIProviderSettings = {
+  const providerSettings: OpenAIProviderSettings = {
     apiKey,
     baseURL: baseUrl,
     fetch: (req, options) =>
@@ -46,24 +54,36 @@ export function initModel(options: CodeReviewOptions): LanguageModel {
   const model = (() => {
     switch (provider) {
       case 'openai':
-        return createOpenAI(providerOptions)(modelId);
+        return createOpenAI(providerSettings)(modelId);
       case 'openai-chat':
-        return createOpenAI(providerOptions).chat(modelId);
+        return createOpenAI(providerSettings).chat(modelId);
       case 'deepseek':
-        return createDeepSeek(providerOptions)(modelId);
+        return createDeepSeek(providerSettings)(modelId);
       case 'xai':
-        return createXai(providerOptions)(modelId);
+        return createXai(providerSettings)(modelId);
       case 'anthropic':
-        return createAnthropic(providerOptions)(modelId);
+        return createAnthropic(providerSettings)(modelId);
       case 'google':
-        return createGoogleGenerativeAI(providerOptions)(modelId);
+        return createGoogleGenerativeAI(providerSettings)(modelId);
       default:
-        return createOpenAI(providerOptions)(modelId);
+        return createOpenAI(providerSettings)(modelId);
+    }
+  })();
+
+  // init provider options
+  const providerOptions = ((): ProviderOptions | undefined => {
+    switch (provider) {
+      case 'openai':
+        return {
+          openai: {
+            store: false,
+          } satisfies OpenAIResponsesProviderOptions,
+        };
     }
   })();
 
   // return
-  return model;
+  return { model, providerOptions };
 }
 
 export async function handleStreamTextResult<TOOLS extends ToolSet>(options: {
