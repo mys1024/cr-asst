@@ -2,7 +2,7 @@
   "name": "cr-asst",
   "type": "module",
   "version": "2.1.0",
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@11.7.0",
   "description": "Review your code changes with AI assistants.",
   "author": "mys1024",
   "license": "MIT",
@@ -74,13 +74,6 @@
     "typescript-eslint": "^8.48.1",
     "unbuild": "^3.6.1",
     "vitest": "^4.0.15"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "core-js",
-      "esbuild",
-      "simple-git-hooks"
-    ]
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check:type && pnpm lint-staged"
