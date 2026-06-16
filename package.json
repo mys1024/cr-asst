@@ -1,7 +1,7 @@
 {
   "name": "cr-asst",
   "type": "module",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "packageManager": "pnpm@11.7.0",
   "description": "Review your code changes with AI assistants.",
   "author": "mys1024",
