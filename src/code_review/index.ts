@@ -74,7 +74,7 @@ async function generateReviewReport(
     promptFile = 'en',
     systemPromptFile,
     disableTools = false,
-    maxSteps = 32,
+    maxSteps = 1024,
     temperature,
     topP,
     topK,
